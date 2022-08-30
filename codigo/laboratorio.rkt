@@ -36,7 +36,7 @@
 
 ; Función constructora de imágenes, crea una lista a con los distintos tipos de 
 
-(define image(
+(define image(  
         lambda(ancho altura . pixeles)
          (list ancho altura pixeles)))
 
@@ -52,14 +52,32 @@
 (define pixmap?(
                 lambda(imagen)(
                               if (= (largo_lista(first(third imagen)))6)
-                                 #t #f)))
+                                 #t
+                                 #f)))
                  
 
-(largo_lista(list "FFFFFF"))
+(define bitmap?(
+                lambda(imagen)(
+                              cond((= (largo_lista(first(third imagen))) 6) '#f)
+                                  ((= (third(first(third imagen))) 1) '#t)
+                                  ((= (third(first(third imagen))) 0) '#t)
+                                   )))
+
+;ARREGLAR
+(define hexmap?(
+                lambda(imagen)(
+                               cond((= (number?(third(first(third imagen)))) #f) '#f ))))
+
+
+                    
+                                
+
+
+                               
 
 
 
-                 
+         
                        
 
 

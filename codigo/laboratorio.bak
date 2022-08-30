@@ -1,0 +1,22 @@
+#lang scheme
+
+;TDA image
+
+; Función que crea un pixrgb-d, toma como dominio las coordenadas "x" e "y", seguido de los 3 parámetros correspondientes a "RGB" y la profundidad "d". (Las comillas son solo para distingir, no
+; corresponden a strings.
+(define pixrgb-d(
+        lambda(x y R G B d)(
+               list x y R G B d)))
+  
+(define pixbit-d(
+        lambda(x y bit d)(
+               list x y bit d)))
+
+(define pixhex-d(
+        lambda(x y hex d)(
+               list x y hex d)))
+
+
+(define image)
+                    
+
