@@ -40,6 +40,22 @@
         lambda(ancho altura . pixeles)
          (list ancho altura pixeles)))
 
+;---------------------------------------------
+
+
+                                              
+                                             
+                                             
+                                          
+                                             
+
+
+
+
+
+
+;---------------------------------------------
+
 
 ;Función que determina el largo de una lista
 ;Dominio: lista.
@@ -62,11 +78,12 @@
                                   ((= (third(first(third imagen))) 1) '#t)
                                   ((= (third(first(third imagen))) 0) '#t)
                                    )))
-
-;ARREGLAR
+  
 (define hexmap?(
                 lambda(imagen)(
-                               cond((= (number?(third(first(third imagen)))) #f) '#f ))))
+                               if(string? (third(first(third imagen))))
+                                 #t
+                                 #f)))
 
 
                     
