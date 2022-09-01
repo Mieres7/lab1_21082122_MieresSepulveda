@@ -1,96 +1,119 @@
 #lang racket
 
 
-; TDA pixeles:
-; Las siguientes funciones definen la estructura basica (basada en listas) de los tres tipos de pixeles requeridos, rgb, bit y hexadecimal.
+;__________________________________________________________ TDA IMAGEN ___________________________________________________________;
 
 
-; Función que crea un pixrgb-d, toma como dominio las coordenadas "x" e "y", seguido de los 3 parámetros correspondientes a "RGB" y la profundidad "d". (Las comillas son solo para distingir, no
-; corresponden a strings)
-; El recorrido corresponde a un pixel, el cual contiene todos los parámetros ingresados en el dominio.
+;----------------------------------------------------------CONSTRUCTORES----------------------------------------------------------;
 
+
+;Nombre: pixrgb-d.
+;Descripción: Función que crea un pixel del tipo pixrgb-d.
+;Dominio: Cordenada en X, cordenada en Y, colores R, G, B y la profundidad d.
+;Recorrido: Pixel tipo RGB-d
+;Tipo de recursión: No aplica
 (define pixrgb-d(
         lambda(PosX PosY R G B d)(
                list PosX PosY R G B d)))
 
-
-; Función que crea un pixbit-d, toma como dominio las coordenadas "x" e "y", seguido de un "0" o "1" (según corresponda) y la profundidad "d". (Las comillas son solo para distingir, no
-; corresponden a strings)
-; El recorrido corresponde a un pixel, el cual contiene todos los parámetros ingresados en el dominio.
-
+;Nombre: pixbit-d
+;Descripción: Función que crea un pixel del tipo pixbit-d. 
+;Dominio: Cordenada en X, cordenada en Y, bit 0 ó 1, y la profundidad d.
+;Recorrido: Pixel tipo bit-d
+;Tipo de recursión: No aplica
 (define pixbit-d(
         lambda(PosX PosY bit d)(
                list PosX PosY bit d)))
 
-; Función que crea un pixhex-d, toma como dominio las coordenadas "x" e "y", seguido de el string "000000" (correspondiente a la notacion de colores hex) y la profundidad "d". (Las comillas son solo para distingir, no
-; corresponden a strings)
-; El recorrido corresponde a un pixel, el cual contiene todos los parámetros ingresados en el dominio.
-
+;Nombre: pixhex-d
+;Descripción: Función que crea un pixel del tipo pixhex-d.
+;Dominio: Cordenada en X, cordenada en Y, color en notación hexadecimal, y la profundidad d.
+;Recorrido: Pixel tipo hex-d
+;Tipo de recursión: No aplica
 (define pixhex-d(
         lambda(PosX PosY hex d)(
                list PosX PosY hex d)))
 
 
-
-;TDA image - Constructor
-
-; Función constructora de imágenes, crea una lista a con los distintos tipos de 
-
+;Nombre: image.
+;Descripción: Función constructura de imagenes a partir de una dimension dada (ancho y alto) y un conjunto de pixeles del tipo RGB-d, bit-d o hex-d.
+;Dominio: Ancho, altura, conjunto de pixeles (pixrgb-d, pixbit-d, píxhex-d)
+;Recorrido: Imagen.
+;Tipo de recursión: No aplica.
 (define image(  
         lambda(ancho altura . pixeles)
          (list ancho altura pixeles)))
 
-;---------------------------------------------
+;-----------------------------------------------------------PERTENENCIA----------------------------------------------------------;
 
 
-                                              
-                                             
-                                             
-                                          
-                                             
-
-
-
-
-
-
-;---------------------------------------------
-
-
-;Función que determina el largo de una lista
-;Dominio: lista.
-;Recorrido: entero.
-(define largo_lista(
-                    lambda (lista)(
-                                   cond ((null? lista) 0)
-                                        (else (+ 1 (largo_lista(cdr lista)))))))
-
+;Descripción: Función que determina si una imagen corresponde a un conjunto de pixeles del tipo pixrgb-d.
+;Dominio: Imagen.
+;Recorrido: Boleano.
+;Tipo de recursión: No aplica.
 (define pixmap?(
                 lambda(imagen)(
-                              if (= (largo_lista(first(third imagen)))6)
+                              if (= (n_componentes?(first(third imagen)))6)
                                  #t
                                  #f)))
                  
-
+;Descripción: Función que determina si una imagen corresponde a un conjunto de pixeles del tipo pixbit-d.
+;Dominio: Imagen.
+;Recorrido: Boleano.
+;Tipo de recursión: No aplica.
 (define bitmap?(
                 lambda(imagen)(
-                              cond((= (largo_lista(first(third imagen))) 6) '#f)
-                                  ((= (third(first(third imagen))) 1) '#t)
-                                  ((= (third(first(third imagen))) 0) '#t)
+                              cond((= (n_componentes?(first(third imagen))) 6) '#f)
+                                  ((= (getBit imagen) 1) '#t)
+                                  ((= (getBit imagen) 0) '#t)
                                    )))
-  
+
+;Descripción: Función que determina si una imagen corresponde a un conjunto de pixeles del tipo pixhex-d.
+;Dominio: Imagen.
+;Recorrido: Boleano.
+;Tipo de recursión: No aplica.
 (define hexmap?(
                 lambda(imagen)(
-                               if(string? (third(first(third imagen))))
+                               if(hexadecimal? (third(first(third imagen))))
                                  #t
                                  #f)))
 
+;Descripción: Función que determina si un el color ingresado corresponde a la notación hexadecimal.
+;Dominio: Color.
+;Recorrido: Booleano.
+;Tipo de recursión: No aplica.
+(define hexadecimal?(
+                     lambda(color)
+                      (string? color)))
 
-                    
-                                
+
+;Descripción: Función que determina el número de componentes en la estructura de un pixel.
+;Dominio: pixél.
+;Recorrido: N° de componentes en el pixel.
+;Tipo de recursión: Recursion Natural
+(define n_componentes?(
+                    lambda (lista)(
+                                   cond ((null? lista) 0)
+                                        (else (+ 1 (n_componentes?(cdr lista)))))))
 
 
-                               
+;----------------------------------------------------------SELECTORES----------------------------------------------------------;
+
+
+;Nombre: getBit.
+;Descripción: Función extrae el 3er elemento de un pixel, bajo el contexto de la funcion bitmap? esta obtiene el bit almacenado en el pixel
+;Dominio: Imagen.
+;Recorrido: Bit 0 o 1.
+;Tipo de recursión: No aplica.
+(define getBit(lambda
+                      (imagen)(
+                    third(first(third imagen)))))
+
+
+;---------------------------------------------------------MODIFICADORES--------------------------------------------------------;
+
+
+;-------------------------------------------------------OTRAS OPERACIONES------------------------------------------------------;
 
 
 
