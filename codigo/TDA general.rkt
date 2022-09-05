@@ -172,7 +172,7 @@
 ;Tipo de recursión: No aplica.
 (define getBit(
                lambda(pixel)
-                (first pixel)))
+                (third pixel)))
 
 ;caso rgb
 
@@ -211,23 +211,34 @@
 
 ;--------------------------------------------------------OPERACIONES TDA PO----------------------------------------------------;
 
-;(define flipH (
- ;              lambda (imagen)
-  ;              (if (odd? (getWidth imagen))
-                    ;caso impar
+(define flipH (
+               lambda (imagen)
+                (if (odd? (getWidth imagen))
+                    (esImpar (getPixeles imagen) (getWidth imagen) 0 (getHeight imagen))
+                    (list 1 2 3)  ;caso impar
+                    );caso par
+                               ))
 
-                    ;caso par
-   ;                            )))
-
- (define esImpar (lambda(lista_pixeles filas acum)
+ (define esImpar (lambda(lista_pixeles filas acum columnas)
                    (if (null? lista_pixeles)
                        null
-                       (if (< (getPosY(getPixel lista_pixeles)) (mitadTrunc filas))
-                           (cond ((esBit?) (append [pixbit-d (getPosX(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
-                                                             (getPosY(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
-                                                             (getBit(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))]))
+                       (if(<= (getPosY(getPixel lista_pixeles)) (mitadTrunc columnas))
+                           (cond ((esBit?(getPixel lista_pixeles)) (list(pixbit-d  (getPosX(pixel-ref lista_pixeles(- (+ acum filas) 1)))                     ;este es el else del primer if
+                                                                                    (getPosY(pixel-ref lista_pixeles(- (+ acum filas) 1)))
+                                                                                    (getBit(getPixel lista_pixeles))
+                                                                                    (getDepth_Bit(getPixel lista_pixeles))                                                                                                            ;llamado recursivo va aqui
+                                                                                    )
+                                                                          (pixbit-d (getPosX(getPixel lista_pixeles))                     ;este es el else del primer if
+                                                                                    (getPosY(getPixel lista_pixeles))
+                                                                                    (getBit(pixel-ref lista_pixeles(- (+ acum filas) 1)))
+                                                                                    (getDepth_Bit(pixel-ref lista_pixeles(- (+ acum filas) 1)))                                                    ;llamado recursivo va aqui
+                                                                                    )
+                                                                          
+                                                                                    (esImpar (delIniFin lista_pixeles) (- filas 2) (+ acum 2) columnas))
+                                                                   )
+                                                                                  
                                  )
-                           "s"
+                           (append (getPixel lista_pixeles))
                            ))))
 
 
@@ -246,7 +257,7 @@
                 (if(hexadecimal?(getHex pixel))
                                  #t
                                  #f)))
-                                                  
+                                                   
 (define getDepth_Bit(lambda(pixel)
                       (if (esBit? pixel)
                           (fourth pixel)
@@ -256,17 +267,33 @@
 
 "mensaje de actualización, fallo en el commit anterior"
                  
+(define getDepth_RGB(lambda(pixel)
+                      (if (esRGB? pixel)
+                          (sixth pixel)
+                          "poner condicion."
+                          )
+                      ))
+
+(define getDepth_Hex(lambda(pixel)
+                      (if (esRGB? pixel)
+                          (fourth pixel)
+                          "poner condicion."
+                          )
+                      ))
 
 
+(define eliminaPixelI (lambda (lista_pixeles)
+                         (cdr lista_pixeles)))
 
+(define eliminaPixelF (lambda (lista_pixeles)
+                         (reverse(cdr(reverse lista_pixeles)))
+                         ))
 
-
-
-
-
-
-
-
+;elimina el primero y el ultimo de una lista
+(define delIniFin (lambda (lista_pixeles)
+                    (eliminaPixelI(eliminaPixelF lista_pixeles))
+                   ))
+ 
 
 
 
