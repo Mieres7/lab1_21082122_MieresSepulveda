@@ -211,36 +211,33 @@
 
 ;--------------------------------------------------------OPERACIONES TDA PO----------------------------------------------------;
 
-(define flipH (
-               lambda (imagen)
-                (if (odd? (getWidth imagen))
-                    (esImpar (getPixeles imagen) (getWidth imagen) 0 (getHeight imagen))
-                    (list 1 2 3)  ;caso impar
-                    );caso par
-                               ))
+;(define flipH (
+ ;              lambda (imagen)))
 
- (define esImpar (lambda(lista_pixeles filas acum columnas)
-                   (if (null? lista_pixeles)
-                       null
-                       (if(<= (getPosY(getPixel lista_pixeles)) (mitadTrunc columnas))
-                           (cond ((esBit?(getPixel lista_pixeles)) (list(pixbit-d  (getPosX(pixel-ref lista_pixeles(- (+ acum filas) 1)))                     ;este es el else del primer if
-                                                                                    (getPosY(pixel-ref lista_pixeles(- (+ acum filas) 1)))
-                                                                                    (getBit(getPixel lista_pixeles))
-                                                                                    (getDepth_Bit(getPixel lista_pixeles))                                                                                                            ;llamado recursivo va aqui
-                                                                                    )
-                                                                          (pixbit-d (getPosX(getPixel lista_pixeles))                     ;este es el else del primer if
-                                                                                    (getPosY(getPixel lista_pixeles))
-                                                                                    (getBit(pixel-ref lista_pixeles(- (+ acum filas) 1)))
-                                                                                    (getDepth_Bit(pixel-ref lista_pixeles(- (+ acum filas) 1)))                                                    ;llamado recursivo va aqui
-                                                                                    )
-                                                                          
-                                                                                    (esImpar (delIniFin lista_pixeles) (- filas 2) (+ acum 2) columnas))
-                                                                   )
-                                                                                  
-                                 )
-                           (append (getPixel lista_pixeles))
-                           ))))
+(define invierte (lambda (lista_p ancho)
+                   (cond (< (getPosY(getPixel lista_p))(mitad ancho) "hacer algo")
+                         (> (getPosY(getPixel lista_p))(mitad ancho) "hacer algo")
+                         (else "hacer algo mas"))
+                   ))
+                   
+  
 
+
+
+
+
+
+
+
+(define mitad(lambda(ancho)
+               (if (odd? ancho)
+                   (-(/ ancho 2)0.5)
+                   (/ ancho 2)
+                   )))
+
+                
+(define my-map(lambda (func lista)
+                (map func lista)))
 
 (define esBit?(lambda(pixel)
                 (cond((= (n_componentes? pixel) 6) '#f)
@@ -294,7 +291,64 @@
                     (eliminaPixelI(eliminaPixelF lista_pixeles))
                    ))
  
+;-- XD --
+ (define esImpar2 (lambda(lista_pixeles filas acum)
+                   (if (null? lista_pixeles)
+                       null
+                       (if(< (getPosY(getPixel lista_pixeles)) (mitadTrunc filas))
+                           (cond ((esBit?(getPixel lista_pixeles)) (list (pixbit-d  (getPosX(pixel-ref lista_pixeles(- (+ acum filas) 1)))                     ;este es el else del primer if
+                                                                                    (getPosY(pixel-ref lista_pixeles(- (+ acum filas) 1)))
+                                                                                    (getBit(getPixel lista_pixeles))
+                                                                                    (getDepth_Bit(getPixel lista_pixeles))                                                                                                            ;llamado recursivo va aqui
+                                                                                    )
+                                                                                    (esImpar (delIniFin lista_pixeles) (- filas 1) (+ acum 1)))
+                                                                   )
+                                 ;((esRGB?(getPixel lista_pixeles) (append [pixrgb-d (getPosX(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
+                                  ;                                                  (getPosY(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
+                                   ;                                                 (getRed(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
+                                    ;                                                (getGreen(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
+                                     ;                                               (getBlue(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
+                                      ;                                              (getDepth_RGB(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
+                                       ;                                             ]
+                                                                          ;llamado recursivo 
+                                                 ;   ))
+                                  ;((esHex?(getPixel lista_pixeles) (append [pixhex-d (getPosX(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
+                                   ;                                                  (getPosY(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
+                                    ;                                                 (getHex(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
+                                     ;                                                (getDepth_Hex(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
+                                      ;                                               ]
+                                                                           ;llamado recursivo
+                                                  ;   ))
+                                                                                     
+                                                                                     
+                                                                                    
+                                 );))
+                           "Hola";else del segundo if.
+                           ))))
 
+
+
+ (define esImpar (lambda(lista_pixeles filas acum columnas)
+                   (if (null? lista_pixeles)
+                       null
+                       (if(<= (getPosY(getPixel lista_pixeles)) (mitadTrunc columnas))
+                           (cond ((esBit?(getPixel lista_pixeles)) (list(pixbit-d   (getPosX(pixel-ref lista_pixeles(- columnas 1)))                     ;este es el else del primer if
+                                                                                    (getPosY(pixel-ref lista_pixeles(- columnas 1)))
+                                                                                    (getBit(getPixel lista_pixeles))
+                                                                                    (getDepth_Bit(getPixel lista_pixeles))                                     ;llamado recursivo va aqui
+                                                                                    )
+                                                                          (pixbit-d (getPosX(getPixel lista_pixeles))                                          ;este es el else del primer if
+                                                                                    (getPosY(getPixel lista_pixeles))
+                                                                                    (getBit(pixel-ref lista_pixeles(- columnas 1)))
+                                                                                    (getDepth_Bit(pixel-ref lista_pixeles(- columnas 1)))                ;llamado recursivo va aqui
+                                                                                    )
+                                                                          
+                                                                                    (esImpar (delIniFin lista_pixeles) (- filas 2) (+ acum 2) columnas))
+                                                                   )
+                                                                                  
+                                 )
+                           (append (getPixel lista_pixeles))
+                           ))))
 
 
 
