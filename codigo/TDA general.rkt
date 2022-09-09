@@ -80,6 +80,25 @@
 
 ;---------------------------------------------------------MODIFICADORES--------------------------------------------------------;
 
+;Documentacion
+(define flipH (lambda (imagen)
+                (cond ((bitmap? imagen) (list (getWidth imagen)(getHeight imagen)(invertirBitH(getWidth imagen)(getPixeles imagen))))
+                      ((pixmap? imagen) (list (getWidth imagen)(getHeight imagen)(invertirRGBH(getWidth imagen)(getPixeles imagen))))
+                      ((hexmap? imagen) (list (getWidth imagen)(getHeight imagen)(invertirHexH(getWidth imagen)(getPixeles imagen))))
+
+                 )
+               )
+)
+
+(define flipV (lambda (imagen)
+                (cond ((bitmap? imagen) (list (getWidth imagen)(getHeight imagen)(invertirBitV(getHeight imagen)(getPixeles imagen))))
+                      ((pixmap? imagen) (list (getWidth imagen)(getHeight imagen)(invertirRGBV(getHeight imagen)(getPixeles imagen))))
+                      ((hexmap? imagen) (list (getWidth imagen)(getHeight imagen)(invertirHexV(getHeight imagen)(getPixeles imagen))))
+
+                 )
+               )
+)
+
 ;--------------------------------------------------------OTRAS OPERACIONES-----------------------------------------------------;
 
 
@@ -146,7 +165,103 @@
 
 ;----------------------------------------------------------PERTENENCIA---------------------------------------------------------;
 
+(define esBit?(lambda(pixel)
+                (cond((= (n_componentes? pixel) 6) '#f)
+                     ((= (getBit pixel) 1) '#t)
+                     ((= (getBit pixel) 0) '#t)
+                       )))
+
+(define esRGB?(lambda(pixel)
+                (if (= (n_componentes? pixel)6 )
+                    '#t
+                    '#f)))
+
+(define esHex?(lambda(pixel)
+                (if(hexadecimal?(getHex pixel))
+                                 #t
+                                 #f)))
+
 ;---------------------------------------------------------MODIFICADORES--------------------------------------------------------;
+
+;Documentacion
+(define invertirBitH(lambda(ancho pixeles)
+                  (if (null? pixeles)
+                      null
+                      (cons (pixbit-d (getPosX(getPixel pixeles))
+                                      (newPosY ancho (getPixel pixeles))
+                                      (getBit(getPixel pixeles))
+                                      (getDepth_Bit(getPixel pixeles)))
+                            (invertirBitH ancho (cdr pixeles))
+                                  ))))
+
+;Documentacion
+(define invertirRGBH(lambda(ancho pixeles)
+                  (if (null? pixeles)
+                      null
+                      (cons (pixrgb-d (getPosX(getPixel pixeles))
+                                      (newPosY ancho (getPixel pixeles))
+                                      (getRed(getPixel pixeles))
+                                      (getGreen(getPixel pixeles))
+                                      (getBlue(getPixel pixeles))
+                                      (getDepth_RGB(getPixel pixeles)))
+                            (invertirRGBH ancho (cdr pixeles))
+                                  ))))
+
+;Documentacion
+(define invertirHexH(lambda(ancho pixeles)
+                  (if (null? pixeles)
+                      null
+                      (cons (pixhex-d (getPosX(getPixel pixeles))
+                                      (newPosY ancho (getPixel pixeles))
+                                      (getHex(getPixel pixeles))
+                                      (getDepth_Hex(getPixel pixeles)))
+                            (invertirHexH ancho (cdr pixeles))
+                                  ))))
+
+;Documentacion
+(define invertirBitV(lambda(altura pixeles)
+                  (if (null? pixeles)
+                      null
+                      (cons (pixbit-d (newPosX altura (getPixel pixeles))
+                                      (getPosY(getPixel pixeles))
+                                      (getBit(getPixel pixeles))
+                                      (getDepth_Bit(getPixel pixeles)))
+                            (invertirBitV altura (cdr pixeles))
+                                  ))))
+
+;Documentacion
+(define invertirRGBV(lambda(altura pixeles)
+                  (if (null? pixeles)
+                      null
+                      (cons (pixrgb-d (newPosX altura (getPixel pixeles))
+                                      (getPosY(getPixel pixeles))
+                                      (getRed(getPixel pixeles))
+                                      (getGreen(getPixel pixeles))
+                                      (getBlue(getPixel pixeles))
+                                      (getDepth_RGB(getPixel pixeles)))
+                            (invertirRGBV altura (cdr pixeles))
+                                  ))))
+
+;Documentacion
+(define invertirHexV(lambda(altura pixeles)
+                  (if (null? pixeles)
+                      null
+                      (cons (pixhex-d (newPosX altura (getPixel pixeles))
+                                      (getPosY(getPixel pixeles))
+                                      (getHex(getPixel pixeles))
+                                      (getDepth_Hex(getPixel pixeles)))
+                            (invertirHexV altura (cdr pixeles))
+                                  ))))
+
+
+;Determina la nueva posiscion en Y que tendrá el pixel a evaluar
+(define newPosY(lambda(dimension Pixel)
+                  (- ( - dimension (getPosY Pixel))1) )
+ )
+
+(define newPosX(lambda(dimension Pixel)
+                  (- ( - dimension (getPosX Pixel))1) )
+ )
 
 ;--------------------------------------------------------OTRAS OPERACIONES-----------------------------------------------------;
 
@@ -190,6 +305,28 @@
 (define getHex(lambda(pixel)(
                              third pixel)))
 
+(define getDepth_Bit(lambda(pixel)
+                      (if (esBit? pixel)
+                          (fourth pixel)
+                          "poner condicion."
+                          )
+                      ))
+
+                 
+(define getDepth_RGB(lambda(pixel)
+                      (if (esRGB? pixel)
+                          (sixth pixel)
+                          "poner condicion."
+                          )
+                      ))
+
+(define getDepth_Hex(lambda(pixel)
+                      (if (esRGB? pixel)
+                          (fourth pixel)
+                          "poner condicion."
+                          )
+                      ))
+
 ;----------------------------------------------------------PERTENENCIA---------------------------------------------------------;
 
 ;Descripción: Función que determina si un el color ingresado corresponde a la notación hexadecimal.
@@ -206,79 +343,10 @@
 
 ;--------------------------------------------------------OPERACIONES TDA PO----------------------------------------------------;
 
-(define mitadTrunc(lambda(filas)
-                    ( - (/ filas 2) 0.5)))
-
-;--------------------------------------------------------OPERACIONES TDA PO----------------------------------------------------;
-
-;(define flipH (
- ;              lambda (imagen)))
-
-(define invierte (lambda (lista_p ancho)
-                   (cond (< (getPosY(getPixel lista_p))(mitad ancho) "hacer algo")
-                         (> (getPosY(getPixel lista_p))(mitad ancho) "hacer algo")
-                         (else "hacer algo mas"))
-                   ))
-                   
-  
-
-
-
-
-
-
-
-
-(define mitad(lambda(ancho)
-               (if (odd? ancho)
-                   (-(/ ancho 2)0.5)
-                   (/ ancho 2)
-                   )))
-
-                
 (define my-map(lambda (func lista)
                 (map func lista)))
 
-(define esBit?(lambda(pixel)
-                (cond((= (n_componentes? pixel) 6) '#f)
-                     ((= (getBit pixel) 1) '#t)
-                     ((= (getBit pixel) 0) '#t)
-                       )))
-
-(define esRGB?(lambda(pixel)
-                (if (= (n_componentes? pixel)6 )
-                    '#t
-                    '#f)))
-
-(define esHex?(lambda(pixel)
-                (if(hexadecimal?(getHex pixel))
-                                 #t
-                                 #f)))
-                                                   
-(define getDepth_Bit(lambda(pixel)
-                      (if (esBit? pixel)
-                          (fourth pixel)
-                          "poner condicion."
-                          )
-                      ))
-
-"mensaje de actualización, fallo en el commit anterior"
-                 
-(define getDepth_RGB(lambda(pixel)
-                      (if (esRGB? pixel)
-                          (sixth pixel)
-                          "poner condicion."
-                          )
-                      ))
-
-(define getDepth_Hex(lambda(pixel)
-                      (if (esRGB? pixel)
-                          (fourth pixel)
-                          "poner condicion."
-                          )
-                      ))
-
-
+;Las 4 siguientes no las he usado pero podria
 (define eliminaPixelI (lambda (lista_pixeles)
                          (cdr lista_pixeles)))
 
@@ -290,65 +358,28 @@
 (define delIniFin (lambda (lista_pixeles)
                     (eliminaPixelI(eliminaPixelF lista_pixeles))
                    ))
- 
-;-- XD --
- (define esImpar2 (lambda(lista_pixeles filas acum)
-                   (if (null? lista_pixeles)
-                       null
-                       (if(< (getPosY(getPixel lista_pixeles)) (mitadTrunc filas))
-                           (cond ((esBit?(getPixel lista_pixeles)) (list (pixbit-d  (getPosX(pixel-ref lista_pixeles(- (+ acum filas) 1)))                     ;este es el else del primer if
-                                                                                    (getPosY(pixel-ref lista_pixeles(- (+ acum filas) 1)))
-                                                                                    (getBit(getPixel lista_pixeles))
-                                                                                    (getDepth_Bit(getPixel lista_pixeles))                                                                                                            ;llamado recursivo va aqui
-                                                                                    )
-                                                                                    (esImpar (delIniFin lista_pixeles) (- filas 1) (+ acum 1)))
-                                                                   )
-                                 ;((esRGB?(getPixel lista_pixeles) (append [pixrgb-d (getPosX(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
-                                  ;                                                  (getPosY(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
-                                   ;                                                 (getRed(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
-                                    ;                                                (getGreen(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
-                                     ;                                               (getBlue(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
-                                      ;                                              (getDepth_RGB(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
-                                       ;                                             ]
-                                                                          ;llamado recursivo 
-                                                 ;   ))
-                                  ;((esHex?(getPixel lista_pixeles) (append [pixhex-d (getPosX(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
-                                   ;                                                  (getPosY(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
-                                    ;                                                 (getHex(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
-                                     ;                                                (getDepth_Hex(pixel-ref(getPixel(lista_pixeles))(+ acum filas)))
-                                      ;                                               ]
-                                                                           ;llamado recursivo
-                                                  ;   ))
-                                                                                     
-                                                                                     
-                                                                                    
-                                 );))
-                           "Hola";else del segundo if.
-                           ))))
+
+;--------------------------------------------------------OPERACIONES TDA PO----------------------------------------------------;
+
+;(define crop(lambda(imagen x1 y1 x2 y2)))
+
+              
+
+;(0 0)(0 1)
+;(1 0)(1 1)
+;(define img4 (crop img1 0 0 0 0)) ; debería retornar una imágen con un pixel
+;(define img5 (crop img2 0 0 0 1)) ; debería retornar una imágen con dos pixeles
+;(define img6 (crop img1 0 1 1 1)) ; debería retornar una imágen con dos pixeles
+;(define img7 (crop img2 0 0 1 1)) ; debería retornar la misma imagen
 
 
 
- (define esImpar (lambda(lista_pixeles filas acum columnas)
-                   (if (null? lista_pixeles)
-                       null
-                       (if(<= (getPosY(getPixel lista_pixeles)) (mitadTrunc columnas))
-                           (cond ((esBit?(getPixel lista_pixeles)) (list(pixbit-d   (getPosX(pixel-ref lista_pixeles(- columnas 1)))                     ;este es el else del primer if
-                                                                                    (getPosY(pixel-ref lista_pixeles(- columnas 1)))
-                                                                                    (getBit(getPixel lista_pixeles))
-                                                                                    (getDepth_Bit(getPixel lista_pixeles))                                     ;llamado recursivo va aqui
-                                                                                    )
-                                                                          (pixbit-d (getPosX(getPixel lista_pixeles))                                          ;este es el else del primer if
-                                                                                    (getPosY(getPixel lista_pixeles))
-                                                                                    (getBit(pixel-ref lista_pixeles(- columnas 1)))
-                                                                                    (getDepth_Bit(pixel-ref lista_pixeles(- columnas 1)))                ;llamado recursivo va aqui
-                                                                                    )
-                                                                          
-                                                                                    (esImpar (delIniFin lista_pixeles) (- filas 2) (+ acum 2) columnas))
-                                                                   )
-                                                                                  
-                                 )
-                           (append (getPixel lista_pixeles))
-                           ))))
+                        
+
+
+  
+  
+  
 
 
 
