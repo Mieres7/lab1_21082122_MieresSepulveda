@@ -99,6 +99,10 @@
                )
 )
 
+(define imgRGB->imgHex(lambda (imagen)
+                        (list (getWidth imagen)(getHeight imagen)(convert(getPixeles imagen)))
+                        ))
+
 ;--------------------------------------------------------OTRAS OPERACIONES-----------------------------------------------------;
 
 
@@ -126,7 +130,7 @@
 
 ;Nombre: pixhex-d
 ;Descripción: Función que crea un pixel del tipo pixhex-d.
-;Dominio: Cordenada en X, cordenada en Y, color en notación hexadecimal, y la profundidad d.
+;Dominio: Cordenada en X, cordenada en Y, color en notación hexadecimal ("#" inlcuido al inicio), y la profundidad d.
 ;Recorrido: Pixel tipo hex-d
 ;Tipo de recursión: No aplica
 (define pixhex-d(
@@ -188,7 +192,7 @@
                   (if (null? pixeles)
                       null
                       (cons (pixbit-d (getPosX(getPixel pixeles))
-                                      (newPosY ancho (getPixel pixeles))
+                                      (newPosY ancho(getPixel pixeles))
                                       (getBit(getPixel pixeles))
                                       (getDepth_Bit(getPixel pixeles)))
                             (invertirBitH ancho (cdr pixeles))
@@ -199,7 +203,7 @@
                   (if (null? pixeles)
                       null
                       (cons (pixrgb-d (getPosX(getPixel pixeles))
-                                      (newPosY ancho (getPixel pixeles))
+                                      (newPosY ancho(getPixel pixeles))
                                       (getRed(getPixel pixeles))
                                       (getGreen(getPixel pixeles))
                                       (getBlue(getPixel pixeles))
@@ -212,7 +216,7 @@
                   (if (null? pixeles)
                       null
                       (cons (pixhex-d (getPosX(getPixel pixeles))
-                                      (newPosY ancho (getPixel pixeles))
+                                      (newPosY ancho(getPixel pixeles))
                                       (getHex(getPixel pixeles))
                                       (getDepth_Hex(getPixel pixeles)))
                             (invertirHexH ancho (cdr pixeles))
@@ -339,14 +343,33 @@
 
 ;---------------------------------------------------------MODIFICADORES--------------------------------------------------------;
 
+(define RGBHex(lambda (R G B)
+                (string-append "#"
+                               (hexValueQ R)(hexValueR R)
+                               (hexValueQ G)(hexValueR G)
+                               (hexValueQ B)(hexValueR B)
+                               )))
+
+(define hexValueQ(lambda(colorRGB)
+                   (case (quotient colorRGB 16)
+                     [(0)"0"][(1)"1"][(2)"2"][(3)"3"][(4)"4"][(5)"5"][(6)"6"][(7)"7"]
+                     [(8)"8"][(9)"9"][(10)"A"][(11)"B"][(12)"C"][(13)"D"][(14)"E"][(15)"F"])
+                   ))
+
+(define hexValueR(lambda(colorRGB)
+                   (case (remainder colorRGB 16)
+                     [(0)"0"][(1)"1"][(2)"2"][(3)"3"][(4)"4"][(5)"5"][(6)"6"][(7)"7"]
+                     [(8)"8"][(9)"9"][(10)"A"][(11)"B"][(12)"C"][(13)"D"][(14)"E"][(15)"F"])
+                   ))
+
 ;--------------------------------------------------------OTRAS OPERACIONES-----------------------------------------------------;
 
 ;--------------------------------------------------------OPERACIONES TDA PO----------------------------------------------------;
 
+;Las 4 siguientes no las he usado pero podria
 (define my-map(lambda (func lista)
                 (map func lista)))
 
-;Las 4 siguientes no las he usado pero podria
 (define eliminaPixelI (lambda (lista_pixeles)
                          (cdr lista_pixeles)))
 
@@ -359,9 +382,21 @@
                     (eliminaPixelI(eliminaPixelF lista_pixeles))
                    ))
 
+; TDA pixeles por definir
+(define convert(lambda(lista_p)
+                 (if (null? lista_p)
+                     null
+                     (cons (pixhex-d (getPosX(getPixel lista_p))
+                                     (getPosY(getPixel lista_p))
+                                     (RGBHex (getRed(getPixel lista_p))(getGreen(getPixel lista_p))(getBlue(getPixel lista_p)))
+                                     (getDepth_Hex(getPixel lista_p)))
+                           (convert(cdr lista_p))))))
+
 ;--------------------------------------------------------OPERACIONES TDA PO----------------------------------------------------;
 
-;(define crop(lambda(imagen x1 y1 x2 y2)))
+(define crop(lambda(imagen x1 y1 x2 y2)
+              (list ((- x2 x1)1)(+(- y2 y1)1));debiera ser image, y ademas falta la lista de pixeles 
+              ))
 
               
 
@@ -374,7 +409,23 @@
 
 
 
-                        
+
+                                     
+
+
+
+                
+
+
+                     
+
+
+
+
+
+
+
+
 
 
   
