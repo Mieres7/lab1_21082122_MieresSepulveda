@@ -52,18 +52,19 @@
 ;Tipo de recursión: No aplica.
 (define bitmap?(
                 lambda(imagen)
-                 (cond((= (n_componentes?(getPixel(getPixeles imagen))) 6) '#f)
-                                  ((= (getBit(getPixel(getPixeles imagen))) 1) '#t)
-                                  ((= (getBit(getPixel(getPixeles imagen))) 0) '#t)
-                                   )))
+                 (cond((= (getBit(getPixel(getPixeles imagen))) 1) '#t)
+                      ((= (getBit(getPixel(getPixeles imagen))) 0) '#t)
+                      ((= (n_componentes?(getPixel(getPixeles imagen))) 6) '#f)
+                      )
+                 ))
 
 ;Descripción: Función que determina si una imagen corresponde a un conjunto de pixeles del tipo pixhex-d.
 ;Dominio: Imagen.
-;Recorrido: Boleano.
+;Recorrido: Booleano.
 ;Tipo de recursión: No aplica.
 (define hexmap?(
                 lambda(imagen)
-                 (if(hexadecimal? (getPixel(getPixeles imagen)))
+                 (if(hexadecimal?(getHex(getPixel(getPixeles imagen))))
                                  #t
                                  #f)))
 
@@ -102,6 +103,24 @@
 (define imgRGB->imgHex(lambda (imagen)
                         (list (getWidth imagen)(getHeight imagen)(convert(getPixeles imagen)))
                         ))
+
+(define crop(lambda(imagen x1 y1 x2 y2)
+              (list (nuevaDim x1 x2)(nuevaDim y1 y2)(filtroCrop imagen (getPixel(getPixeles imagen)) x1 y1 x2 y2)
+                     )
+              ))
+
+(define nuevaDim(lambda(d1 d2)
+                  (+(- d2 d1)1)
+                  ))
+
+(define filtroCrop(lambda(imagen pixel x1 y1 x2 y2)
+                    (filtro-px(lambda(pixel)(and
+                               (>= (getPosX pixel) x1)(<= (getPosX pixel) x2)
+                               (>= (getPosY pixel) y1)(<= (getPosY pixel) y2)
+                               ))(getPixeles imagen)
+  )
+                    ))
+
 
 ;--------------------------------------------------------OTRAS OPERACIONES-----------------------------------------------------;
 
@@ -158,14 +177,11 @@
                 lambda(pixel)
                  (car(cdr pixel))))
 
-;nuevo list ref
-(define pixel-ref(lambda(lista_pixeles referencia)(
-                                                  list-ref lista_pixeles referencia)
-                   ))
+
 
 ;retorna el primer pixel de una lista de pixeles sacadas de una imagen.
-(define getPixel(lambda (lista_pixeles)
-                  (first lista_pixeles)))
+(define getPixel(lambda (pixeles)
+                  (first pixeles)))
 
 ;----------------------------------------------------------PERTENENCIA---------------------------------------------------------;
 
@@ -273,10 +289,15 @@
 ;Dominio: pixél.
 ;Recorrido: N° de componentes en el pixel.
 ;Tipo de recursión: Recursion Natural
-(define n_componentes?(
-                       lambda (pixel)
+(define n_componentes?(lambda (pixel)
                         (cond ((null? pixel) 0)
-                                        (else (+ 1 (n_componentes?(cdr pixel)))))))
+                              (else (+ 1 (n_componentes?(cdr pixel)))))
+                        ))
+
+(define n_pixeles?(lambda (pixeles)
+                        (cond ((null? pixeles) 0)
+                              (else (+ 1 (n_pixeles?(cdr pixeles)))))
+                    ))
 
 ;TDA - color
 
@@ -306,8 +327,8 @@
 
 ;caso hexadecimal
 
-(define getHex(lambda(pixel)(
-                             third pixel)))
+(define getHex(lambda(pixel)
+                (third pixel)))
 
 (define getDepth_Bit(lambda(pixel)
                       (if (esBit? pixel)
@@ -383,31 +404,96 @@
                    ))
 
 ; TDA pixeles por definir
-(define convert(lambda(lista_p)
-                 (if (null? lista_p)
+(define convert(lambda(pixeles)
+                 (if (null? pixeles)
                      null
-                     (cons (pixhex-d (getPosX(getPixel lista_p))
-                                     (getPosY(getPixel lista_p))
-                                     (RGBHex (getRed(getPixel lista_p))(getGreen(getPixel lista_p))(getBlue(getPixel lista_p)))
-                                     (getDepth_Hex(getPixel lista_p)))
-                           (convert(cdr lista_p))))))
+                     (cons (pixhex-d (getPosX(getPixel pixeles))
+                                     (getPosY(getPixel pixeles))
+                                     (RGBHex (getRed(getPixel pixeles))(getGreen(getPixel pixeles))(getBlue(getPixel pixeles)))
+                                     (getDepth_RGB(getPixel pixeles)))
+                           (convert(cdr pixeles))))))
 
 ;--------------------------------------------------------OPERACIONES TDA PO----------------------------------------------------;
 
-(define crop(lambda(imagen x1 y1 x2 y2)
-              (list ((- x2 x1)1)(+(- y2 y1)1));debiera ser image, y ademas falta la lista de pixeles 
-              ))
 
+
+(define histogram(lambda(imagen)
+                   (case (histogramCase imagen)
+                     [(0)(hexHistogram (getPixeles imagen)(getHex(getPixel(getPixeles imagen))))]
+                     [(1)(bitHistogramEnv (getPixeles imagen)(getWidth imagen)(getHeight imagen))]
+                   )
+                   ))
+
+
+(define bitHistogramEnv(lambda(pixeles ancho alto)
+                         (define bitHistogram(lambda(pixeles ancho alto sumaBit)
+                                               (if (null? pixeles)
+                                                   (list(list 0 sumaBit)(list 1 (-(* ancho alto)sumaBit)))
+                                                   (cond ((=(getBit(getPixel pixeles))0) (bitHistogram (cdr pixeles) ancho alto (+ sumaBit 1)))
+                                                         (else (bitHistogram (cdr pixeles) ancho alto sumaBit)))
+                                                   )
+                                               ))
+                  (bitHistogram pixeles ancho alto 0)
+                         ))
+
+
+(define filtro-px(lambda(filtro pixeles)
+                   (filter filtro pixeles)))
+
+(define hexHistogram(lambda(pixeles colorPrimerPixel)
+                      (if (null? pixeles)
+                          null
+                          (list (getHex(getPixel pixeles))
+                                (n_pixeles?(filtro-px(lambda(pixel)
+                                                       (string=? (getHex pixel) colorPrimerPixel))
+                                                     pixeles))
+                                
+                                )
+                          ) 
+                      ))
+                          
+
+                        
+
+                          
+(define histogramCase(lambda(imagen)
+                       (cond ((hexmap? imagen) 0)
+                             ((bitmap? imagen) 1)
+                             ((pixmap? imagen) 2)
+                             )
+                       ))
+
+               
+                   
+                              
+(define img1(image 2 2
+                   (pixrgb-d 0 0 255 0 0 10)
+                   (pixrgb-d 0 1 0 255 0 20)
+                   (pixrgb-d 1 0 0 0 255 10)
+                   (pixrgb-d 1 1 255 255 255  1)
+                   ))
+
+(define img2(image 2 2
+                   (pixhex-d 0 0 "#FF0000" 10)
+                   (pixhex-d 0 1 "#00FF00" 20)
+                   (pixhex-d 1 0 "#00FF00" 30)
+                   (pixhex-d 1 1 "#FFFFFF" 40)
+                    ))
+
+(define img3(image 2 2
+                   (pixbit-d 0 0 1 10)
+                   (pixbit-d 0 1 1 20)
+                   (pixbit-d 1 0 0 30)
+                   (pixbit-d 1 1 0 40)
+                    ))
               
-
-;(0 0)(0 1)
-;(1 0)(1 1)
-;(define img4 (crop img1 0 0 0 0)) ; debería retornar una imágen con un pixel
-;(define img5 (crop img2 0 0 0 1)) ; debería retornar una imágen con dos pixeles
-;(define img6 (crop img1 0 1 1 1)) ; debería retornar una imágen con dos pixeles
-;(define img7 (crop img2 0 0 1 1)) ; debería retornar la misma imagen
-
-
+                                
+                      
+                      
+                      
+                         
+                   
+                   
 
 
                                      
