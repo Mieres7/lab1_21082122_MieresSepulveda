@@ -124,6 +124,58 @@
 
 ;--------------------------------------------------------OTRAS OPERACIONES-----------------------------------------------------;
 
+(define histogram(lambda(imagen)
+                   (case (histogramCase imagen)
+                     [(0)(hexHistogram (coloresHex(getPixeles imagen))(car(coloresHex(getPixeles imagen))))]
+                     [(1)(bitHistogram (getPixeles imagen)(getWidth imagen)(getHeight imagen))]
+                     [(2)(rgbHistogram (coloresRgb(getPixeles imagen))(car(coloresRgb(getPixeles imagen))))]
+                    )
+                   ))
+
+(define bitHistogram(lambda(pixeles ancho alto)
+                         (define bitHistogramInt(lambda(pixeles ancho alto sumaBit)
+                                               (if (null? pixeles)
+                                                   (list(list 0 sumaBit)(list 1 (-(* ancho alto)sumaBit)))
+                                                   (cond ((=(getBit(getPixel pixeles))0) (bitHistogram (cdr pixeles) ancho alto (+ sumaBit 1)))
+                                                         (else (bitHistogramInt (cdr pixeles) ancho alto sumaBit)))
+                                                   )
+                                               ))
+                  (bitHistogramInt pixeles ancho alto 0)
+                         ))
+
+(define hexHistogram(lambda(colores primerColor)
+                      (if (null? colores)
+                          null
+                          (cons(list(car colores)
+                               (n_pixeles?(filtro-px(lambda (color)
+                                                      (string=? color primerColor))
+                                                    colores)))
+                               (hexHistogram (remove* (list primerColor) colores)(if (null?(remove* (list primerColor) colores))
+                                                                                            null
+                                                                                            (car(remove* (list primerColor) colores))
+                                                                                      )) 
+                               ))))
+
+(define rgbHistogram(lambda(colores primerColor)
+                      (if (null? colores)
+                          null
+                          (cons(list(car colores)
+                               (n_pixeles?(filtro-px(lambda (color)
+                                                      (equal? color primerColor))
+                                                    colores)))
+                               (rgbHistogram (remove* (list primerColor) colores)(if (null?(remove* (list primerColor) colores))
+                                                                                            null
+                                                                                            (car(remove* (list primerColor) colores))
+                                                                                      )) 
+                               ))))
+
+(define histogramCase(lambda(imagen)
+                       (cond ((hexmap? imagen) 0)
+                             ((bitmap? imagen) 1)
+                             ((pixmap? imagen) 2)
+                             )
+                       ))
+
 
 ;TDA - pixel
 
@@ -182,6 +234,28 @@
 ;retorna el primer pixel de una lista de pixeles sacadas de una imagen.
 (define getPixel(lambda (pixeles)
                   (first pixeles)))
+
+(define getDepth_Bit(lambda(pixel)
+                      (if (esBit? pixel)
+                          (fourth pixel)
+                          "poner condicion."
+                          )
+                      ))
+
+                 
+(define getDepth_RGB(lambda(pixel)
+                      (if (esRGB? pixel)
+                          (sixth pixel)
+                          "poner condicion."
+                          )
+                      ))
+
+(define getDepth_Hex(lambda(pixel)
+                      (if (esRGB? pixel)
+                          (fourth pixel)
+                          "poner condicion."
+                          )
+                      ))
 
 ;----------------------------------------------------------PERTENENCIA---------------------------------------------------------;
 
@@ -283,6 +357,9 @@
                   (- ( - dimension (getPosX Pixel))1) )
  )
 
+(define filtro-px(lambda(filtro pixeles)
+                   (filter filtro pixeles)))
+
 ;--------------------------------------------------------OTRAS OPERACIONES-----------------------------------------------------;
 
 ;Descripción: Función que determina el número de componentes en la estructura de un pixel.
@@ -330,27 +407,23 @@
 (define getHex(lambda(pixel)
                 (third pixel)))
 
-(define getDepth_Bit(lambda(pixel)
-                      (if (esBit? pixel)
-                          (fourth pixel)
-                          "poner condicion."
-                          )
-                      ))
 
-                 
-(define getDepth_RGB(lambda(pixel)
-                      (if (esRGB? pixel)
-                          (sixth pixel)
-                          "poner condicion."
-                          )
-                      ))
 
-(define getDepth_Hex(lambda(pixel)
-                      (if (esRGB? pixel)
-                          (fourth pixel)
-                          "poner condicion."
-                          )
-                      ))
+;las 2 siguientes dejan los colores en solo una lista
+(define coloresHex(lambda(pixeles)
+                 (if (null? pixeles)
+                     null
+                     (cons (getHex(getPixel pixeles)) (coloresHex(cdr pixeles)))
+                 )))
+
+(define coloresRgb(lambda(pixeles)
+                    (if (null? pixeles)
+                        null
+                        (cons  (list (getRed(getPixel pixeles))
+                                    (getGreen(getPixel pixeles))
+                                    (getBlue(getPixel pixeles)))
+                              (coloresRgb(cdr pixeles)))
+                        )))
 
 ;----------------------------------------------------------PERTENENCIA---------------------------------------------------------;
 
@@ -416,56 +489,7 @@
 ;--------------------------------------------------------OPERACIONES TDA PO----------------------------------------------------;
 
 
-
-(define histogram(lambda(imagen)
-                   (case (histogramCase imagen)
-                     [(0)(hexHistogram (getPixeles imagen)(getHex(getPixel(getPixeles imagen))))]
-                     [(1)(bitHistogramEnv (getPixeles imagen)(getWidth imagen)(getHeight imagen))]
-                   )
-                   ))
-
-
-(define bitHistogramEnv(lambda(pixeles ancho alto)
-                         (define bitHistogram(lambda(pixeles ancho alto sumaBit)
-                                               (if (null? pixeles)
-                                                   (list(list 0 sumaBit)(list 1 (-(* ancho alto)sumaBit)))
-                                                   (cond ((=(getBit(getPixel pixeles))0) (bitHistogram (cdr pixeles) ancho alto (+ sumaBit 1)))
-                                                         (else (bitHistogram (cdr pixeles) ancho alto sumaBit)))
-                                                   )
-                                               ))
-                  (bitHistogram pixeles ancho alto 0)
-                         ))
-
-
-(define filtro-px(lambda(filtro pixeles)
-                   (filter filtro pixeles)))
-
-(define hexHistogram(lambda(pixeles colorPrimerPixel)
-                      (if (null? pixeles)
-                          null
-                          (list (getHex(getPixel pixeles))
-                                (n_pixeles?(filtro-px(lambda(pixel)
-                                                       (string=? (getHex pixel) colorPrimerPixel))
-                                                     pixeles))
-                                
-                                )
-                          ) 
-                      ))
-                          
-
-                        
-
-                          
-(define histogramCase(lambda(imagen)
-                       (cond ((hexmap? imagen) 0)
-                             ((bitmap? imagen) 1)
-                             ((pixmap? imagen) 2)
-                             )
-                       ))
-
-               
-                   
-                              
+                             
 (define img1(image 2 2
                    (pixrgb-d 0 0 255 0 0 10)
                    (pixrgb-d 0 1 0 255 0 20)
@@ -476,7 +500,7 @@
 (define img2(image 2 2
                    (pixhex-d 0 0 "#FF0000" 10)
                    (pixhex-d 0 1 "#00FF00" 20)
-                   (pixhex-d 1 0 "#00FF00" 30)
+                   (pixhex-d 1 0 "#0000FF" 30)
                    (pixhex-d 1 1 "#FFFFFF" 40)
                     ))
 
