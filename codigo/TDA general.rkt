@@ -238,7 +238,7 @@
 (define getDepth_Bit(lambda(pixel)
                       (if (esBit? pixel)
                           (fourth pixel)
-                          "poner condicion."
+                          "El pixel ingresado no es del tipo pixbit-d."
                           )
                       ))
 
@@ -246,14 +246,14 @@
 (define getDepth_RGB(lambda(pixel)
                       (if (esRGB? pixel)
                           (sixth pixel)
-                          "poner condicion."
+                          "El pixel ingresado no es del tipo pixrgb-d."
                           )
                       ))
 
 (define getDepth_Hex(lambda(pixel)
-                      (if (esRGB? pixel)
+                      (if (esHex? pixel)
                           (fourth pixel)
-                          "poner condicion."
+                          "El pixel ingresado no es del tipo pixhex-d."
                           )
                       ))
 
@@ -489,7 +489,48 @@
 ;--------------------------------------------------------OPERACIONES TDA PO----------------------------------------------------;
 
 
-                             
+(define rotate90(lambda(imagen)
+                  (cond ((hexmap? imagen)(list (getHeight imagen)(getWidth imagen)(rotateHex(getWidth imagen)(getPixeles imagen))))
+                        ((bitmap? imagen)(list (getHeight imagen)(getWidth imagen)(rotateBit(getWidth imagen)(getPixeles imagen))))
+                        ((pixmap? imagen)(list (getHeight imagen)(getWidth imagen)(rotateRGB(getWidth imagen)(getPixeles imagen))))
+                         )
+                  ))
+
+
+
+(define rotateBit(lambda(filas pixeles)
+                   (if (null? pixeles)
+                       null
+                       (cons (pixbit-d (getPosY(getPixel pixeles))
+                                       (- (- filas 1)(getPosX(getPixel pixeles)))
+                                       (getBit(getPixel pixeles))
+                                       (getDepth_Bit(getPixel pixeles)))
+                             (rotateBit filas (cdr pixeles)))
+                       )))
+
+(define rotateHex(lambda(filas pixeles)
+                   (if (null? pixeles)
+                       null
+                       (cons (pixhex-d (getPosY(getPixel pixeles))
+                                       (- (- filas 1)(getPosX(getPixel pixeles)))
+                                       (getHex(getPixel pixeles))
+                                       (getDepth_Hex(getPixel pixeles)))
+                             (rotateHex filas (cdr pixeles)))
+                       )))
+
+(define rotateRGB(lambda(filas pixeles)
+                   (if (null? pixeles)
+                       null
+                       (cons (pixrgb-d (getPosY(getPixel pixeles))
+                                       (- (- filas 1)(getPosX(getPixel pixeles)))
+                                       (getRed(getPixel pixeles))
+                                       (getGreen(getPixel pixeles))
+                                       (getBlue(getPixel pixeles))
+                                       (getDepth_RGB(getPixel pixeles)))
+                             (rotateRGB filas (cdr pixeles)))
+                       )))
+
+                 
 (define img1(image 2 2
                    (pixrgb-d 0 0 255 0 0 10)
                    (pixrgb-d 0 1 0 255 0 20)
