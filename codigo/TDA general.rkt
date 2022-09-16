@@ -534,8 +534,8 @@
 (define img1(image 2 2
                    (pixrgb-d 0 0 255 0 0 10)
                    (pixrgb-d 0 1 0 255 0 20)
-                   (pixrgb-d 1 0 0 0 255 10)
-                   (pixrgb-d 1 1 255 255 255  1)
+                   (pixrgb-d 1 0 0 0 255 30)
+                   (pixrgb-d 1 1 255 255 255 40)
                    ))
 
 (define img2(image 2 2
@@ -552,12 +552,49 @@
                    (pixbit-d 1 1 0 40)
                     ))
               
-                                
-                      
-                      
-                      
-                         
-                   
+(define edit(lambda(filtro imagen)
+              (list (getWidth imagen)(getHeight imagen)(filtro imagen))
+              ))
+
+(define invertColorBit(lambda(imagen)
+                        (cond ((bitmap? imagen)(invertBit (getPixeles imagen)))
+                              (else "La imagen ingresadad no corresponde al tipo de filtro que se desea aplicar."))
+                        ))
+                        
+(define invertBit(lambda(pixeles)
+                   (if (null? pixeles)
+                       null
+                       (cons (pixbit-d (getPosX(getPixel pixeles))
+                                       (getPosY(getPixel pixeles))
+                                       (if (=(getBit(getPixel pixeles))1)
+                                           0
+                                           1)
+                                       (getDepth_Bit(getPixel pixeles)))
+                             (invertBit (cdr pixeles)))
+                       )
+                   ))
+                        
+(define invertColorRGB(lambda(imagen)
+                        (cond ((pixmap? imagen)(invertRGB (getPixeles imagen)))
+                              (else "La imagen ingresadad no corresponde al tipo de filtro que se desea aplicar."))
+                        ))
+
+(define invertRGB(lambda(pixeles)
+                   (if (null? pixeles)
+                       null
+                       (cons (pixrgb-d (getPosX(getPixel pixeles))
+                                       (getPosY(getPixel pixeles))
+                                       (opuesto(getRed(getPixel pixeles)))
+                                       (opuesto(getGreen(getPixel pixeles)))
+                                       (opuesto(getBlue(getPixel pixeles)))
+                                       (getDepth_RGB(getPixel pixeles)))
+                             (invertRGB (cdr pixeles)))
+                       )
+                   ))
+                          
+(define opuesto(lambda(RGB)
+                 (-(- 256 RGB)1)
+                 ))
                    
 
 

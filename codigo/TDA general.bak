@@ -52,18 +52,19 @@
 ;Tipo de recursión: No aplica.
 (define bitmap?(
                 lambda(imagen)
-                 (cond((= (n_componentes?(getPixel(getPixeles imagen))) 6) '#f)
-                                  ((= (getBit(getPixel(getPixeles imagen))) 1) '#t)
-                                  ((= (getBit(getPixel(getPixeles imagen))) 0) '#t)
-                                   )))
+                 (cond((= (getBit(getPixel(getPixeles imagen))) 1) '#t)
+                      ((= (getBit(getPixel(getPixeles imagen))) 0) '#t)
+                      ((= (n_componentes?(getPixel(getPixeles imagen))) 6) '#f)
+                      )
+                 ))
 
 ;Descripción: Función que determina si una imagen corresponde a un conjunto de pixeles del tipo pixhex-d.
 ;Dominio: Imagen.
-;Recorrido: Boleano.
+;Recorrido: Booleano.
 ;Tipo de recursión: No aplica.
 (define hexmap?(
                 lambda(imagen)
-                 (if(hexadecimal? (getPixel(getPixeles imagen)))
+                 (if(hexadecimal?(getHex(getPixel(getPixeles imagen))))
                                  #t
                                  #f)))
 
@@ -99,7 +100,81 @@
                )
 )
 
+(define imgRGB->imgHex(lambda (imagen)
+                        (list (getWidth imagen)(getHeight imagen)(convert(getPixeles imagen)))
+                        ))
+
+(define crop(lambda(imagen x1 y1 x2 y2)
+              (list (nuevaDim x1 x2)(nuevaDim y1 y2)(filtroCrop imagen (getPixel(getPixeles imagen)) x1 y1 x2 y2)
+                     )
+              ))
+
+(define nuevaDim(lambda(d1 d2)
+                  (+(- d2 d1)1)
+                  ))
+
+(define filtroCrop(lambda(imagen pixel x1 y1 x2 y2)
+                    (filtro-px(lambda(pixel)(and
+                               (>= (getPosX pixel) x1)(<= (getPosX pixel) x2)
+                               (>= (getPosY pixel) y1)(<= (getPosY pixel) y2)
+                               ))(getPixeles imagen)
+  )
+                    ))
+
+
 ;--------------------------------------------------------OTRAS OPERACIONES-----------------------------------------------------;
+
+(define histogram(lambda(imagen)
+                   (case (histogramCase imagen)
+                     [(0)(hexHistogram (coloresHex(getPixeles imagen))(car(coloresHex(getPixeles imagen))))]
+                     [(1)(bitHistogram (getPixeles imagen)(getWidth imagen)(getHeight imagen))]
+                     [(2)(rgbHistogram (coloresRgb(getPixeles imagen))(car(coloresRgb(getPixeles imagen))))]
+                    )
+                   ))
+
+(define bitHistogram(lambda(pixeles ancho alto)
+                         (define bitHistogramInt(lambda(pixeles ancho alto sumaBit)
+                                               (if (null? pixeles)
+                                                   (list(list 0 sumaBit)(list 1 (-(* ancho alto)sumaBit)))
+                                                   (cond ((=(getBit(getPixel pixeles))0) (bitHistogram (cdr pixeles) ancho alto (+ sumaBit 1)))
+                                                         (else (bitHistogramInt (cdr pixeles) ancho alto sumaBit)))
+                                                   )
+                                               ))
+                  (bitHistogramInt pixeles ancho alto 0)
+                         ))
+
+(define hexHistogram(lambda(colores primerColor)
+                      (if (null? colores)
+                          null
+                          (cons(list(car colores)
+                               (n_pixeles?(filtro-px(lambda (color)
+                                                      (string=? color primerColor))
+                                                    colores)))
+                               (hexHistogram (remove* (list primerColor) colores)(if (null?(remove* (list primerColor) colores))
+                                                                                            null
+                                                                                            (car(remove* (list primerColor) colores))
+                                                                                      )) 
+                               ))))
+
+(define rgbHistogram(lambda(colores primerColor)
+                      (if (null? colores)
+                          null
+                          (cons(list(car colores)
+                               (n_pixeles?(filtro-px(lambda (color)
+                                                      (equal? color primerColor))
+                                                    colores)))
+                               (rgbHistogram (remove* (list primerColor) colores)(if (null?(remove* (list primerColor) colores))
+                                                                                            null
+                                                                                            (car(remove* (list primerColor) colores))
+                                                                                      )) 
+                               ))))
+
+(define histogramCase(lambda(imagen)
+                       (cond ((hexmap? imagen) 0)
+                             ((bitmap? imagen) 1)
+                             ((pixmap? imagen) 2)
+                             )
+                       ))
 
 
 ;TDA - pixel
@@ -126,7 +201,7 @@
 
 ;Nombre: pixhex-d
 ;Descripción: Función que crea un pixel del tipo pixhex-d.
-;Dominio: Cordenada en X, cordenada en Y, color en notación hexadecimal, y la profundidad d.
+;Dominio: Cordenada en X, cordenada en Y, color en notación hexadecimal ("#" inlcuido al inicio), y la profundidad d.
 ;Recorrido: Pixel tipo hex-d
 ;Tipo de recursión: No aplica
 (define pixhex-d(
@@ -154,14 +229,33 @@
                 lambda(pixel)
                  (car(cdr pixel))))
 
-;nuevo list ref
-(define pixel-ref(lambda(lista_pixeles referencia)(
-                                                  list-ref lista_pixeles referencia)
-                   ))
+
 
 ;retorna el primer pixel de una lista de pixeles sacadas de una imagen.
-(define getPixel(lambda (lista_pixeles)
-                  (first lista_pixeles)))
+(define getPixel(lambda (pixeles)
+                  (first pixeles)))
+
+(define getDepth_Bit(lambda(pixel)
+                      (if (esBit? pixel)
+                          (fourth pixel)
+                          "El pixel ingresado no es del tipo pixbit-d."
+                          )
+                      ))
+
+                 
+(define getDepth_RGB(lambda(pixel)
+                      (if (esRGB? pixel)
+                          (sixth pixel)
+                          "El pixel ingresado no es del tipo pixrgb-d."
+                          )
+                      ))
+
+(define getDepth_Hex(lambda(pixel)
+                      (if (esHex? pixel)
+                          (fourth pixel)
+                          "El pixel ingresado no es del tipo pixhex-d."
+                          )
+                      ))
 
 ;----------------------------------------------------------PERTENENCIA---------------------------------------------------------;
 
@@ -188,7 +282,7 @@
                   (if (null? pixeles)
                       null
                       (cons (pixbit-d (getPosX(getPixel pixeles))
-                                      (newPosY ancho (getPixel pixeles))
+                                      (newPosY ancho(getPixel pixeles))
                                       (getBit(getPixel pixeles))
                                       (getDepth_Bit(getPixel pixeles)))
                             (invertirBitH ancho (cdr pixeles))
@@ -199,7 +293,7 @@
                   (if (null? pixeles)
                       null
                       (cons (pixrgb-d (getPosX(getPixel pixeles))
-                                      (newPosY ancho (getPixel pixeles))
+                                      (newPosY ancho(getPixel pixeles))
                                       (getRed(getPixel pixeles))
                                       (getGreen(getPixel pixeles))
                                       (getBlue(getPixel pixeles))
@@ -212,7 +306,7 @@
                   (if (null? pixeles)
                       null
                       (cons (pixhex-d (getPosX(getPixel pixeles))
-                                      (newPosY ancho (getPixel pixeles))
+                                      (newPosY ancho(getPixel pixeles))
                                       (getHex(getPixel pixeles))
                                       (getDepth_Hex(getPixel pixeles)))
                             (invertirHexH ancho (cdr pixeles))
@@ -263,16 +357,24 @@
                   (- ( - dimension (getPosX Pixel))1) )
  )
 
+(define filtro-px(lambda(filtro pixeles)
+                   (filter filtro pixeles)))
+
 ;--------------------------------------------------------OTRAS OPERACIONES-----------------------------------------------------;
 
 ;Descripción: Función que determina el número de componentes en la estructura de un pixel.
 ;Dominio: pixél.
 ;Recorrido: N° de componentes en el pixel.
 ;Tipo de recursión: Recursion Natural
-(define n_componentes?(
-                       lambda (pixel)
+(define n_componentes?(lambda (pixel)
                         (cond ((null? pixel) 0)
-                                        (else (+ 1 (n_componentes?(cdr pixel)))))))
+                              (else (+ 1 (n_componentes?(cdr pixel)))))
+                        ))
+
+(define n_pixeles?(lambda (pixeles)
+                        (cond ((null? pixeles) 0)
+                              (else (+ 1 (n_pixeles?(cdr pixeles)))))
+                    ))
 
 ;TDA - color
 
@@ -302,30 +404,26 @@
 
 ;caso hexadecimal
 
-(define getHex(lambda(pixel)(
-                             third pixel)))
+(define getHex(lambda(pixel)
+                (third pixel)))
 
-(define getDepth_Bit(lambda(pixel)
-                      (if (esBit? pixel)
-                          (fourth pixel)
-                          "poner condicion."
-                          )
-                      ))
 
-                 
-(define getDepth_RGB(lambda(pixel)
-                      (if (esRGB? pixel)
-                          (sixth pixel)
-                          "poner condicion."
-                          )
-                      ))
 
-(define getDepth_Hex(lambda(pixel)
-                      (if (esRGB? pixel)
-                          (fourth pixel)
-                          "poner condicion."
-                          )
-                      ))
+;las 2 siguientes dejan los colores en solo una lista
+(define coloresHex(lambda(pixeles)
+                 (if (null? pixeles)
+                     null
+                     (cons (getHex(getPixel pixeles)) (coloresHex(cdr pixeles)))
+                 )))
+
+(define coloresRgb(lambda(pixeles)
+                    (if (null? pixeles)
+                        null
+                        (cons  (list (getRed(getPixel pixeles))
+                                    (getGreen(getPixel pixeles))
+                                    (getBlue(getPixel pixeles)))
+                              (coloresRgb(cdr pixeles)))
+                        )))
 
 ;----------------------------------------------------------PERTENENCIA---------------------------------------------------------;
 
@@ -339,14 +437,33 @@
 
 ;---------------------------------------------------------MODIFICADORES--------------------------------------------------------;
 
+(define RGBHex(lambda (R G B)
+                (string-append "#"
+                               (hexValueQ R)(hexValueR R)
+                               (hexValueQ G)(hexValueR G)
+                               (hexValueQ B)(hexValueR B)
+                               )))
+
+(define hexValueQ(lambda(colorRGB)
+                   (case (quotient colorRGB 16)
+                     [(0)"0"][(1)"1"][(2)"2"][(3)"3"][(4)"4"][(5)"5"][(6)"6"][(7)"7"]
+                     [(8)"8"][(9)"9"][(10)"A"][(11)"B"][(12)"C"][(13)"D"][(14)"E"][(15)"F"])
+                   ))
+
+(define hexValueR(lambda(colorRGB)
+                   (case (remainder colorRGB 16)
+                     [(0)"0"][(1)"1"][(2)"2"][(3)"3"][(4)"4"][(5)"5"][(6)"6"][(7)"7"]
+                     [(8)"8"][(9)"9"][(10)"A"][(11)"B"][(12)"C"][(13)"D"][(14)"E"][(15)"F"])
+                   ))
+
 ;--------------------------------------------------------OTRAS OPERACIONES-----------------------------------------------------;
 
 ;--------------------------------------------------------OPERACIONES TDA PO----------------------------------------------------;
 
+;Las 4 siguientes no las he usado pero podria
 (define my-map(lambda (func lista)
                 (map func lista)))
 
-;Las 4 siguientes no las he usado pero podria
 (define eliminaPixelI (lambda (lista_pixeles)
                          (cdr lista_pixeles)))
 
@@ -359,22 +476,107 @@
                     (eliminaPixelI(eliminaPixelF lista_pixeles))
                    ))
 
+; TDA pixeles por definir
+(define convert(lambda(pixeles)
+                 (if (null? pixeles)
+                     null
+                     (cons (pixhex-d (getPosX(getPixel pixeles))
+                                     (getPosY(getPixel pixeles))
+                                     (RGBHex (getRed(getPixel pixeles))(getGreen(getPixel pixeles))(getBlue(getPixel pixeles)))
+                                     (getDepth_RGB(getPixel pixeles)))
+                           (convert(cdr pixeles))))))
+
 ;--------------------------------------------------------OPERACIONES TDA PO----------------------------------------------------;
 
-;(define crop(lambda(imagen x1 y1 x2 y2)))
 
+(define rotate90(lambda(imagen)
+                  (cond ((hexmap? imagen)(list (getHeight imagen)(getWidth imagen)(rotateHex(getWidth imagen)(getPixeles imagen))))
+                        ((bitmap? imagen)(list (getHeight imagen)(getWidth imagen)(rotateBit(getWidth imagen)(getPixeles imagen))))
+                        ((pixmap? imagen)(list (getHeight imagen)(getWidth imagen)(rotateRGB(getWidth imagen)(getPixeles imagen))))
+                         )
+                  ))
+
+
+
+(define rotateBit(lambda(filas pixeles)
+                   (if (null? pixeles)
+                       null
+                       (cons (pixbit-d (getPosY(getPixel pixeles))
+                                       (- (- filas 1)(getPosX(getPixel pixeles)))
+                                       (getBit(getPixel pixeles))
+                                       (getDepth_Bit(getPixel pixeles)))
+                             (rotateBit filas (cdr pixeles)))
+                       )))
+
+(define rotateHex(lambda(filas pixeles)
+                   (if (null? pixeles)
+                       null
+                       (cons (pixhex-d (getPosY(getPixel pixeles))
+                                       (- (- filas 1)(getPosX(getPixel pixeles)))
+                                       (getHex(getPixel pixeles))
+                                       (getDepth_Hex(getPixel pixeles)))
+                             (rotateHex filas (cdr pixeles)))
+                       )))
+
+(define rotateRGB(lambda(filas pixeles)
+                   (if (null? pixeles)
+                       null
+                       (cons (pixrgb-d (getPosY(getPixel pixeles))
+                                       (- (- filas 1)(getPosX(getPixel pixeles)))
+                                       (getRed(getPixel pixeles))
+                                       (getGreen(getPixel pixeles))
+                                       (getBlue(getPixel pixeles))
+                                       (getDepth_RGB(getPixel pixeles)))
+                             (rotateRGB filas (cdr pixeles)))
+                       )))
+
+                 
+(define img1(image 2 2
+                   (pixrgb-d 0 0 255 0 0 10)
+                   (pixrgb-d 0 1 0 255 0 20)
+                   (pixrgb-d 1 0 0 0 255 10)
+                   (pixrgb-d 1 1 255 255 255  1)
+                   ))
+
+(define img2(image 2 2
+                   (pixhex-d 0 0 "#FF0000" 10)
+                   (pixhex-d 0 1 "#00FF00" 20)
+                   (pixhex-d 1 0 "#0000FF" 30)
+                   (pixhex-d 1 1 "#FFFFFF" 40)
+                    ))
+
+(define img3(image 2 2
+                   (pixbit-d 0 0 1 10)
+                   (pixbit-d 0 1 1 20)
+                   (pixbit-d 1 0 0 30)
+                   (pixbit-d 1 1 0 40)
+                    ))
               
+                                
+                      
+                      
+                      
+                         
+                   
+                   
 
-;(0 0)(0 1)
-;(1 0)(1 1)
-;(define img4 (crop img1 0 0 0 0)) ; debería retornar una imágen con un pixel
-;(define img5 (crop img2 0 0 0 1)) ; debería retornar una imágen con dos pixeles
-;(define img6 (crop img1 0 1 1 1)) ; debería retornar una imágen con dos pixeles
-;(define img7 (crop img2 0 0 1 1)) ; debería retornar la misma imagen
+
+                                     
 
 
 
-                        
+                
+
+
+                     
+
+
+
+
+
+
+
+
 
 
   
