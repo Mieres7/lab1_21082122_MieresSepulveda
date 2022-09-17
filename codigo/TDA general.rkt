@@ -118,7 +118,7 @@
                                (>= (getPosX pixel) x1)(<= (getPosX pixel) x2)
                                (>= (getPosY pixel) y1)(<= (getPosY pixel) y2)
                                ))(getPixeles imagen)
-  )
+                                 )
                     ))
 
 
@@ -598,8 +598,7 @@
                    
 
 
-                                     
-
+(define adjustChannel(lambda()
 
 
                 
