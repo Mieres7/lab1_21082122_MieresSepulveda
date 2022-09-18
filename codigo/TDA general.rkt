@@ -23,16 +23,16 @@
 ;Dominio: Imagen.
 ;Recorrido: Pixeles de Imagen.
 ;Tipo de recursion: No aplica
-(define getPixeles(lambda(imagen)(
-                                  third imagen)))
+(define getPixeles(lambda(image)(
+                                  third image)))
 
 (define getWidth(
-                 lambda(imagen)
-                  (car imagen)))
+                 lambda(image)
+                  (car image)))
 
 (define getHeight(
-                  lambda(imagen)
-                   (car(cdr imagen))))
+                  lambda(image)
+                   (car(cdr image))))
 
 ;----------------------------------------------------------PERTENENCIA----------------------------------------------------------;
 
@@ -41,8 +41,8 @@
 ;Recorrido: Boleano.
 ;Tipo de recursión: No aplica.
 (define pixmap?(
-                lambda(imagen)
-                 (if (= (n_componentes?(getPixel(getPixeles imagen)))6)
+                lambda(image)
+                 (if (= (n_componentes?(getPixel(getPixeles image)))6)
                                  #t
                                  #f)))
                  
@@ -51,10 +51,10 @@
 ;Recorrido: Boleano.
 ;Tipo de recursión: No aplica.
 (define bitmap?(
-                lambda(imagen)
-                 (cond((= (getBit(getPixel(getPixeles imagen))) 1) '#t)
-                      ((= (getBit(getPixel(getPixeles imagen))) 0) '#t)
-                      ((= (n_componentes?(getPixel(getPixeles imagen))) 6) '#f)
+                lambda(image)
+                 (cond((= (getBit(getPixel(getPixeles image))) 1) '#t)
+                      ((= (getBit(getPixel(getPixeles image))) 0) '#t)
+                      ((= (n_componentes?(getPixel(getPixeles image))) 6) '#f)
                       )
                  ))
 
@@ -62,9 +62,8 @@
 ;Dominio: Imagen.
 ;Recorrido: Booleano.
 ;Tipo de recursión: No aplica.
-(define hexmap?(
-                lambda(imagen)
-                 (if(hexadecimal?(getHex(getPixel(getPixeles imagen))))
+(define hexmap?(lambda(image)
+                 (if(hexadecimal?(getHex(getPixel(getPixeles image))))
                                  #t
                                  #f)))
 
@@ -74,38 +73,38 @@
 ;Recorrido: Boleano.
 ;Tipo de recursión: No aplica.
 (define compressed?(
-                     lambda(imagen)
-                      (if (= (* (getWidth imagen) (getHeight imagen)) (n_componentes?(getPixel(getPixeles imagen))))
+                     lambda(image)
+                      (if (= (* (getWidth image) (getHeight image)) (n_componentes?(getPixel(getPixeles image))))
                           #f
                           #t)))
 
 ;---------------------------------------------------------MODIFICADORES--------------------------------------------------------;
 
 ;Documentacion
-(define flipH (lambda (imagen)
-                (cond ((bitmap? imagen) (list (getWidth imagen)(getHeight imagen)(invertirBitH(getWidth imagen)(getPixeles imagen))))
-                      ((pixmap? imagen) (list (getWidth imagen)(getHeight imagen)(invertirRGBH(getWidth imagen)(getPixeles imagen))))
-                      ((hexmap? imagen) (list (getWidth imagen)(getHeight imagen)(invertirHexH(getWidth imagen)(getPixeles imagen))))
+(define flipH (lambda (image)
+                (cond ((bitmap? image) (list (getWidth image)(getHeight image)(invertirBitH(getWidth image)(getPixeles image))))
+                      ((pixmap? image) (list (getWidth image)(getHeight image)(invertirRGBH(getWidth image)(getPixeles image))))
+                      ((hexmap? image) (list (getWidth image)(getHeight image)(invertirHexH(getWidth image)(getPixeles image))))
 
                  )
                )
 )
 
-(define flipV (lambda (imagen)
-                (cond ((bitmap? imagen) (list (getWidth imagen)(getHeight imagen)(invertirBitV(getHeight imagen)(getPixeles imagen))))
-                      ((pixmap? imagen) (list (getWidth imagen)(getHeight imagen)(invertirRGBV(getHeight imagen)(getPixeles imagen))))
-                      ((hexmap? imagen) (list (getWidth imagen)(getHeight imagen)(invertirHexV(getHeight imagen)(getPixeles imagen))))
+(define flipV (lambda (image)
+                (cond ((bitmap? image) (list (getWidth image)(getHeight image)(invertirBitV(getHeight image)(getPixeles image))))
+                      ((pixmap? image) (list (getWidth image)(getHeight image)(invertirRGBV(getHeight image)(getPixeles image))))
+                      ((hexmap? image) (list (getWidth image)(getHeight image)(invertirHexV(getHeight image)(getPixeles image))))
 
                  )
                )
 )
 
-(define imgRGB->imgHex(lambda (imagen)
-                        (list (getWidth imagen)(getHeight imagen)(convert(getPixeles imagen)))
+(define imgRGB->imgHex(lambda (image)
+                        (list (getWidth image)(getHeight image)(convert(getPixeles image)))
                         ))
 
-(define crop(lambda(imagen x1 y1 x2 y2)
-              (list (nuevaDim x1 x2)(nuevaDim y1 y2)(filtroCrop imagen (getPixel(getPixeles imagen)) x1 y1 x2 y2)
+(define crop(lambda(image x1 y1 x2 y2)
+              (list (nuevaDim x1 x2)(nuevaDim y1 y2)(filtroCrop image (getPixel(getPixeles image)) x1 y1 x2 y2)
                      )
               ))
 
@@ -113,22 +112,22 @@
                   (+(- d2 d1)1)
                   ))
 
-(define filtroCrop(lambda(imagen pixel x1 y1 x2 y2)
+(define filtroCrop(lambda(image pixel x1 y1 x2 y2)
                     (filtro-px(lambda(pixel)(and
                                (>= (getPosX pixel) x1)(<= (getPosX pixel) x2)
                                (>= (getPosY pixel) y1)(<= (getPosY pixel) y2)
-                               ))(getPixeles imagen)
+                               ))(getPixeles image)
                                  )
                     ))
 
 
 ;--------------------------------------------------------OTRAS OPERACIONES-----------------------------------------------------;
 
-(define histogram(lambda(imagen)
-                   (case (histogramCase imagen)
-                     [(0)(hexHistogram (coloresHex(getPixeles imagen))(car(coloresHex(getPixeles imagen))))]
-                     [(1)(bitHistogram (getPixeles imagen)(getWidth imagen)(getHeight imagen))]
-                     [(2)(rgbHistogram (coloresRgb(getPixeles imagen))(car(coloresRgb(getPixeles imagen))))]
+(define histogram(lambda(image)
+                   (case (histogramCase image)
+                     [(0)(hexHistogram (coloresHex(getPixeles image))(car(coloresHex(getPixeles image))))]
+                     [(1)(bitHistogram (getPixeles image)(getWidth image)(getHeight image))]
+                     [(2)(rgbHistogram (coloresRgb(getPixeles image))(car(coloresRgb(getPixeles image))))]
                     )
                    ))
 
@@ -136,7 +135,7 @@
                          (define bitHistogramInt(lambda(pixeles ancho alto sumaBit)
                                                (if (null? pixeles)
                                                    (list(list 0 sumaBit)(list 1 (-(* ancho alto)sumaBit)))
-                                                   (cond ((=(getBit(getPixel pixeles))0) (bitHistogram (cdr pixeles) ancho alto (+ sumaBit 1)))
+                                                   (cond ((=(getBit(getPixel pixeles))0) (bitHistogramInt (cdr pixeles) ancho alto (+ sumaBit 1)))
                                                          (else (bitHistogramInt (cdr pixeles) ancho alto sumaBit)))
                                                    )
                                                ))
@@ -169,10 +168,10 @@
                                                                                       )) 
                                ))))
 
-(define histogramCase(lambda(imagen)
-                       (cond ((hexmap? imagen) 0)
-                             ((bitmap? imagen) 1)
-                             ((pixmap? imagen) 2)
+(define histogramCase(lambda(image)
+                       (cond ((hexmap? image) 0)
+                             ((bitmap? image) 1)
+                             ((pixmap? image) 2)
                              )
                        ))
 
@@ -598,7 +597,6 @@
                    
 
 
-(define adjustChannel(lambda()
 
 
                 

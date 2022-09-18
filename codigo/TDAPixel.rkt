@@ -21,6 +21,8 @@
 (provide newPosY)
 (provide filtro-px)
 (provide n_componentes?)
+(provide map-px)
+
 
 
 
@@ -64,8 +66,7 @@
 ;Dominio: Pixel.
 ;Recorrido: Coordenada en X.
 ;Tipo de recursión: No aplica.
-(define getPosX(
-                lambda(pixel)
+(define getPosX(lambda(pixel)
                  (car pixel)))
 
 
@@ -74,8 +75,7 @@
 ;Dominio: Pixel.
 ;Recorrido: Coordenada en Y.
 ;Tipo de recursión: No aplica.
-(define getPosY(
-                lambda(pixel)
+(define getPosY(lambda(pixel)
                  (car(cdr pixel))))
 
 
@@ -116,8 +116,7 @@
 
 ;caso rgb
 
-(define getRed(lambda(pixel)(
-                             third pixel)))
+(define getRed(lambda(pixel)(third pixel)))
 
 (define getGreen(lambda(pixel)(
                              fourth pixel)))
@@ -259,6 +258,10 @@
 (define filtro-px(lambda(filtro pixeles)
                    (filter filtro pixeles)))
 
+(define map-px(lambda(filtro pixeles)
+                (map filtro pixeles)
+                ))
+
 (define RGBHex(lambda (R G B)
                 (string-append "#"
                                (hexValueQ R)(hexValueR R)
@@ -266,17 +269,7 @@
                                (hexValueQ B)(hexValueR B)
                                )))
 
-(define hexValueQ(lambda(colorRGB)
-                   (case (quotient colorRGB 16)
-                     [(0)"0"][(1)"1"][(2)"2"][(3)"3"][(4)"4"][(5)"5"][(6)"6"][(7)"7"]
-                     [(8)"8"][(9)"9"][(10)"A"][(11)"B"][(12)"C"][(13)"D"][(14)"E"][(15)"F"])
-                   ))
 
-(define hexValueR(lambda(colorRGB)
-                   (case (remainder colorRGB 16)
-                     [(0)"0"][(1)"1"][(2)"2"][(3)"3"][(4)"4"][(5)"5"][(6)"6"][(7)"7"]
-                     [(8)"8"][(9)"9"][(10)"A"][(11)"B"][(12)"C"][(13)"D"][(14)"E"][(15)"F"])
-                   ))
 
 ;--------------------------------------------------------OTRAS OPERACIONES-----------------------------------------------------;
 
@@ -298,3 +291,14 @@
                               (else (+ 1 (n_pixeles?(cdr pixeles)))))
                     ))
 
+(define hexValueQ(lambda(colorRGB)
+                   (case (quotient colorRGB 16)
+                     [(0)"0"][(1)"1"][(2)"2"][(3)"3"][(4)"4"][(5)"5"][(6)"6"][(7)"7"]
+                     [(8)"8"][(9)"9"][(10)"A"][(11)"B"][(12)"C"][(13)"D"][(14)"E"][(15)"F"])
+                   ))
+
+(define hexValueR(lambda(colorRGB)
+                   (case (remainder colorRGB 16)
+                     [(0)"0"][(1)"1"][(2)"2"][(3)"3"][(4)"4"][(5)"5"][(6)"6"][(7)"7"]
+                     [(8)"8"][(9)"9"][(10)"A"][(11)"B"][(12)"C"][(13)"D"][(14)"E"][(15)"F"])
+                   ))

@@ -1,5 +1,4 @@
 #lang racket
-(require "TDAPixel.rkt")
 (provide getBit)
 (provide getRed)
 (provide getGreen)
@@ -7,11 +6,15 @@
 (provide getHex)
 (provide coloresHex)
 (provide coloresRgb)
+(provide getColorsRGB)
 (provide hexadecimal?)
 (provide RGBHex)
+(provide opuesto)
+(provide invertColorRGB)
+(provide invertColorBit)
 (provide hexValueQ)
 (provide hexValueR)
-(provide opuesto)
+(require "TDAPixel.rkt")
 
 ;TDA - color
 
@@ -29,8 +32,7 @@
 
 ;caso rgb
 
-(define getRed(lambda(pixel)(
-                             third pixel)))
+(define getRed(lambda(pixel)(third pixel)))
 
 (define getGreen(lambda(pixel)(
                              fourth pixel)))
@@ -49,17 +51,20 @@
 (define coloresHex(lambda(pixeles)
                  (if (null? pixeles)
                      null
-                     (cons (getHex(getPixel pixeles)) (coloresHex(cdr pixeles)))
+                     (cons (getHex(first pixeles)) (coloresHex(cdr pixeles)))
                  )))
 
 (define coloresRgb(lambda(pixeles)
                     (if (null? pixeles)
                         null
-                        (cons  (list (getRed(getPixel pixeles))
-                                     (getGreen(getPixel pixeles))
-                                     (getBlue(getPixel pixeles)))
+                        (cons  (list (getRed(first pixeles))
+                                     (getGreen(first pixeles))
+                                     (getBlue(first pixeles)))
                               (coloresRgb(cdr pixeles)))
                         )))
+
+(define getColorsRGB(lambda(pixel)
+                      (list(getRed pixel)(getGreen pixel)(getBlue pixel))))
 
 ;----------------------------------------------------------PERTENENCIA---------------------------------------------------------;
 
@@ -79,6 +84,33 @@
                                (hexValueQ B)(hexValueR B)
                                )))
 
+
+
+(define opuesto(lambda(RGB)
+                 (-(- 256 RGB)1)
+                 ))
+
+(define invertColorBit(lambda(pixel)
+                        (pixbit-d (getPosX pixel)
+                                  (getPosY pixel)
+                                  (if (=(getBit pixel)1)
+                                      0
+                                      1)
+                                  (getDepth_Bit pixel))
+                        ))
+
+(define invertColorRGB(lambda(pixel)
+                        (pixrgb-d (getPosX pixel)
+                                  (getPosY pixel)
+                                  (opuesto(getRed pixel))
+                                  (opuesto(getGreen pixel))
+                                  (opuesto(getBlue pixel))
+                                  (getDepth_RGB pixel))
+                        ))
+
+;--------------------------------------------------------OTRAS OPERACIONES-----------------------------------------------------;
+
+;--------------------------------------------------------OPERACIONES TDA PO----------------------------------------------------;
 (define hexValueQ(lambda(colorRGB)
                    (case (quotient colorRGB 16)
                      [(0)"0"][(1)"1"][(2)"2"][(3)"3"][(4)"4"][(5)"5"][(6)"6"][(7)"7"]
@@ -90,11 +122,3 @@
                      [(0)"0"][(1)"1"][(2)"2"][(3)"3"][(4)"4"][(5)"5"][(6)"6"][(7)"7"]
                      [(8)"8"][(9)"9"][(10)"A"][(11)"B"][(12)"C"][(13)"D"][(14)"E"][(15)"F"])
                    ))
-
-(define opuesto(lambda(RGB)
-                 (-(- 256 RGB)1)
-                 ))
-
-;--------------------------------------------------------OTRAS OPERACIONES-----------------------------------------------------;
-
-;--------------------------------------------------------OPERACIONES TDA PO----------------------------------------------------;

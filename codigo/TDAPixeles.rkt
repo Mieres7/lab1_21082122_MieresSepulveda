@@ -1,6 +1,5 @@
 #lang racket
-(require "TDAPixel.rkt")
-(require "TDAColor.rkt")
+
 (provide getPixeles)
 (provide convert)
 (provide n_pixeles?)
@@ -9,7 +8,17 @@
 (provide rotateRGB)
 (provide invertBit)
 (provide invertRGB)
+(provide commonDBit)
+(provide commonDHex)
+(provide commonDRGB)
+(provide detCommon)
+(provide delCommonHex)
+(provide delCommonBit)
+(provide delCommonRGB)
+(require "TDAColor.rkt")
+(require "TDAPixel.rkt")
 
+; TDA - Pixeles
 
 ;---------------------------------------------------------CONSTRUCTORES--------------------------------------------------------;
 
@@ -21,8 +30,51 @@
 ;Dominio: Imagen.
 ;Recorrido: Pixeles de Imagen.
 ;Tipo de recursion: No aplica
-(define getPixeles(lambda(imagen)(
-                                  third imagen)))
+(define getPixeles(lambda(image)
+                    (third image)))
+
+(define commonDBit(lambda(pixeles common)
+                        (if (null? pixeles)
+                            null
+                            (if (not(= (getBit (getPixel pixeles)) common))
+                                (cons(getDepth_Bit(getPixel pixeles))(commonDBit (cdr pixeles) common))
+                                (commonDBit (cdr pixeles) common)
+                                     )
+                            )
+                    ))
+
+(define commonDRGB(lambda(pixeles common)
+                        (if (null? pixeles)
+                            null
+                            (if (not(equal? (getColorsRGB(getPixel pixeles)) common))
+                                (cons(getDepth_RGB(getPixel pixeles))(commonDRGB (cdr pixeles) common))
+                                (commonDRGB (cdr pixeles) common)
+                                     )
+                            )
+                    ))
+
+(define commonDHex(lambda(pixeles common)
+                        (if (null? pixeles)
+                            null
+                            (if (not(equal?(getHex (getPixel pixeles)) common))
+                                (cons(getDepth_Hex(getPixel pixeles))(commonDHex(cdr pixeles) common))
+                                (commonDHex (cdr pixeles) common)
+                                     )
+                            )
+                    ))
+
+(define detCommon(lambda(histogram)
+                   (define detCommonEnv(lambda(histogram common)
+                                         (if (null? histogram)
+                                             (first common)
+                                             (if (>(second common)(second(first histogram)))
+                                                 (detCommonEnv (cdr histogram)common)
+                                                 (detCommonEnv (cdr histogram) (first histogram))
+                                                 
+                                             )
+                                         )))
+                   (detCommonEnv histogram (first histogram))
+                   ))
 
 
 ;----------------------------------------------------------PERTENENCIA---------------------------------------------------------;
@@ -99,6 +151,34 @@
                              (invertRGB (cdr pixeles)))
                        )
                    ))
+
+(define delCommonBit(lambda(common pixeles)
+                   (if (null? pixeles)
+                       null
+                       (if (not(=(getBit (getPixel pixeles)) common))
+                                  (cons (getPixel pixeles)(delCommonBit common (cdr pixeles)))
+                                  (delCommonBit common (cdr pixeles))
+                       ))
+                      ))
+                   
+(define delCommonRGB(lambda(common pixeles)
+                   (if (null? pixeles)
+                       null
+                       (if (not(equal? (getColorsRGB(getPixel pixeles)) common))
+                           (cons (getPixel pixeles)(delCommonRGB common (cdr pixeles)))
+                           (delCommonRGB common (cdr pixeles))
+                           ))
+                      ))
+
+
+(define delCommonHex(lambda(common pixeles)
+                   (if (null? pixeles)
+                       null
+                       (if (not(equal?(getHex (getPixel pixeles)) common))
+                                  (cons (getPixel pixeles)(delCommonHex common (cdr pixeles)))
+                                  (delCommonHex common (cdr pixeles))
+                       ))
+                      ))
 ;-------------------------------------------------------OTRAS OPERACIONES------------------------------------------------------;
 
 
