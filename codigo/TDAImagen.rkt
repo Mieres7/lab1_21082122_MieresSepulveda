@@ -1,73 +1,60 @@
 #lang racket
-(provide image)
 (provide getWidth)
 (provide getHeight)
-(provide pixmap?)
-(provide bitmap?)
-(provide hexmap?)
-(provide compressed?)
-(provide flipH)
-(provide flipV)
-(provide imgRGB->imgHex)
 (provide nuevaDim)
-(provide crop)
 (provide filtroCrop)
-(provide rotate90)
-(provide histogram)
 (provide bitHistogram)
 (provide rgbHistogram)
 (provide hexHistogram)
 (provide histogramCase)
-(provide edit)
-(provide compress)
 (require "TDAPixel.rkt")
 (require "TDAPixeles.rkt")
 (require "TDAColor.rkt")
 
+;------------------------------------------------------------------------------------------------------------------------------;
 
 
-;TDA - image
+
+;----------------------------------------------------------TDA - Image---------------------------------------------------------;
+
+; Implementación del TDA Image
+; Representaición:
+; - Image: Ancho(int+) X Alto(int+) X Pixeles(list)
+; - Image Compressed: Ancho(int) X Alto(int) X Depths(list X int) X Color(int) | Color(str) | Color(Red(int) | Green(int) | Blue(int)
+; - Histogram: (List(Color(int) | Color(str) | Color(Red(int) | Green(int) | Blue(int)) X Cantidad(int)))
+
 
 ;---------------------------------------------------------CONSTRUCTORES--------------------------------------------------------;
 
-;Nombre: image.
-;Descripción: Función constructura de imagenes a partir de una dimension dada (ancho y alto) y un conjunto de pixeles del tipo RGB-d, bit-d o hex-d.
-;Dominio: Ancho, altura, conjunto de pixeles (pixrgb-d, pixbit-d, píxhex-d)
-;Recorrido: Imagen.
-;Tipo de recursión: No aplica.
-(define image(  
-        lambda(ancho altura . pixeles)
-         (if (= (* ancho altura)(n_componentes? pixeles))
-             (list ancho altura pixeles)
-              "Favor ingresar cantidad correcta de pixeles, o en su defecto la dimensión correcta de la imagen.")))
-
-
 ;----------------------------------------------------------SELECTORES-----------------------------------------------------------;
 
+;Nombre: getWidth
+;Descripción: Función que retorna el ancho de una imagen
+;Dominio: image
+;Recorrido: Ancho(int+)
+;Tipo de recursión: No aplica
+;Estrategia: No aplica
 (define getWidth(lambda(image)
                   (car image)))
 
+
+;Nombre: getHeight
+;Descripción: Función que retorna el alto de una imagen
+;Dominio: Image.
+;Recorrido: Alto(int+)
+;Tipo de recursión: No aplica.
+;Estrategia: No aplica.
 (define getHeight(lambda(image)
                    (car(cdr image))))
 
-
-
 ;----------------------------------------------------------PERTENENCIA----------------------------------------------------------;
 
-;Descripción: Función que determina si una imagen corresponde a un conjunto de pixeles del tipo pixrgb-d.
-;Dominio: Imagen.
-;Recorrido: Boleano.
-;Tipo de recursión: No aplica.
-(define pixmap?(
-                lambda(image)
-                 (if (= (n_componentes?(getPixel(getPixeles image)))6)
-                                 #t
-                                 #f)))
-                 
+;Nombre: bitmap?
 ;Descripción: Función que determina si una imagen corresponde a un conjunto de pixeles del tipo pixbit-d.
-;Dominio: Imagen.
+;Dominio: Image.
 ;Recorrido: Boleano.
 ;Tipo de recursión: No aplica.
+;Estrategia: No aplica.
 (define bitmap?(
                 lambda(image)
                  (cond((= (getBit(getPixel(getPixeles image))) 1) '#t)
@@ -76,60 +63,49 @@
                       )
                  ))
 
+;Nombre: pixmap?
+;Descripción: Función que determina si una imagen corresponde a un conjunto de pixeles del tipo pixrgb-d.
+;Dominio: Image.
+;Recorrido: Boleano.
+;Tipo de recursión: No aplica.
+;Estrategia: No aplica.
+(define pixmap?(
+                lambda(image)
+                 (if (= (n_componentes?(getPixel(getPixeles image)))6)
+                                 #t
+                                 #f)))
+                 
+
+;Nombre: hexmap?
 ;Descripción: Función que determina si una imagen corresponde a un conjunto de pixeles del tipo pixhex-d.
-;Dominio: Imagen.
+;Dominio: Image.
 ;Recorrido: Booleano.
 ;Tipo de recursión: No aplica.
+;Estrategia: No aplica.
 (define hexmap?(lambda(image)
                  (if(hexadecimal?(getHex(getPixel(getPixeles image))))
                                  #t
                                  #f)))
 
-;Nombre: compressed?
-;Descripción: Función que determina si una imagen está comprimida o no.
-;Dominio: Imagen.
-;Recorrido: Boleano.
-;Tipo de recursión: No aplica.
-(define compressed?(
-                     lambda(image)
-                      (if (= (* (getWidth image) (getHeight image))(n_componentes?(getPixeles image)))
-                          #f
-                          #t)))
-
 ;---------------------------------------------------------MODIFICADORES--------------------------------------------------------;
 
-;Documentacion
-(define flipH (lambda (image)
-                (cond ((bitmap? image) (list (getWidth image)(getHeight image)(invertirBitH(getWidth image)(getPixeles image))))
-                      ((pixmap? image) (list (getWidth image)(getHeight image)(invertirRGBH(getWidth image)(getPixeles image))))
-                      ((hexmap? image) (list (getWidth image)(getHeight image)(invertirHexH(getWidth image)(getPixeles image))))
-
-                 )
-               )
-)
-
-(define flipV (lambda (image)
-                (cond ((bitmap? image) (list (getWidth image)(getHeight image)(invertirBitV(getHeight image)(getPixeles image))))
-                      ((pixmap? image) (list (getWidth image)(getHeight image)(invertirRGBV(getHeight image)(getPixeles image))))
-                      ((hexmap? image) (list (getWidth image)(getHeight image)(invertirHexV(getHeight image)(getPixeles image))))
-
-                 )
-               )
-)
-
-(define imgRGB->imgHex(lambda (image)
-                        (list (getWidth image)(getHeight image)(convert(getPixeles image)))
-                        ))
-
-(define crop(lambda(image x1 y1 x2 y2)
-              (list (nuevaDim x1 x2)(nuevaDim y1 y2)(filtroCrop image (getPixel(getPixeles image)) x1 y1 x2 y2)
-                     )
-              ))
-
+;Nombre: nuevaDim
+;Descripción: Función que determina la nueva dimesión que tendrá una imagen tras sometarla a la función crop.
+;Dominio: d1(int) X d2(int).
+;Recorrido: int+.
+;Tipo de recursión: No aplica.
+;Estrategia: No aplica.
 (define nuevaDim(lambda(d1 d2)
                   (+(- d2 d1)1)
                   ))
-
+ 
+;Nombre: filtroCrop
+;Descripción: Función que aplica un filtro a los pixeles de una imagen, en este caso la condición que debe cumplir cada pixel,
+;             es pertenecer al área especificada en la entrada.
+;Dominio: image X pixel X x1(int) X y1(int) X x2(int) X y2(int).
+;Recorrido: Pixeles(list)
+;Tipo de recursión: No aplica.
+;Estrategia: No aplica.
 (define filtroCrop(lambda(image pixel x1 y1 x2 y2)
                     (filtro-px(lambda(pixel)(and
                                (>= (getPosX pixel) x1)(<= (getPosX pixel) x2)
@@ -138,61 +114,16 @@
   )
                     ))
 
-
-(define rotate90(lambda(image)
-                  (cond ((hexmap? image)(list (getHeight image)(getWidth image)(rotateHex(getWidth image)(getPixeles image))))
-                        ((bitmap? image)(list (getHeight image)(getWidth image)(rotateBit(getWidth image)(getPixeles image))))
-                        ((pixmap? image)(list (getHeight image)(getWidth image)(rotateRGB(getWidth image)(getPixeles image))))
-                         )
-                  ))
-
-
-(define edit(lambda (filtro image)
-              (list (getWidth image)(getHeight image)(map-px filtro (getPixeles image)))
-  ))
-
-(define invertColorBit(lambda(image)
-                        (cond ((bitmap? image)(invertBit (getPixeles image)))
-                              (else "La imagen ingresadad no corresponde al tipo de filtro que se desea aplicar."))
-                        ))
-
-(define invertColorRGB(lambda(image)
-                        (cond ((pixmap? image)(invertRGB (getPixeles image)))
-                              (else "La imagen ingresadad no corresponde al tipo de filtro que se desea aplicar."))
-                        ))
-
-(define compress(lambda(image)
-                  (cond ((hexmap? image) (list(getWidth image)
-                                              (getHeight image)
-                                              (delCommonHex (detCommon(histogram image)) (getPixeles image))
-                                              (commonDHex (getPixeles image)(detCommon(histogram image)))
-                                              (detCommon(histogram image))
-                                              
-                                              ))
-                        ((bitmap? image) (list (getWidth image)
-                                               (getHeight image)
-                                               (delCommonBit (detCommon(histogram image)) (getPixeles image))
-                                               (commonDBit(getPixeles image)(detCommon(histogram image)))
-                                               (detCommon(histogram image))
-                                             
-                                              ))
-                        ((pixmap? image) (list(delCommonRGB (detCommon(histogram image)) (getPixeles image))
-                                              (commonDRGB(getPixeles image)(detCommon(histogram image)))
-                                              (list(detCommon(histogram image)))
-                                              (list (getWidth image)(getHeight image))
-                                              ))
-                        )
-                  ))
 ;--------------------------------------------------------OTRAS OPERACIONES-----------------------------------------------------;
 
-(define histogram(lambda(image)
-                   (case (histogramCase image)
-                     [(0)(hexHistogram (coloresHex(getPixeles image))(car(coloresHex(getPixeles image))))]
-                     [(1)(bitHistogram (getPixeles image)(getWidth image)(getHeight image))]
-                     [(2)(rgbHistogram (coloresRgb(getPixeles image))(car(coloresRgb(getPixeles image))))]
-                    )
-                   ))
 
+;Nombre: bitHistogram
+;Descripción: Función que determina el histograma de una función del tipo bitmap.
+;Dominio: Pixeles(list) X Ancho(int) X Alto(int)
+;Recorrido: Color(int) X Cantidad(int)
+;Tipo de recursión: Recursión de Cola. Es necesaria, puesto que la solución es necesaria que se construya una vez recorrida la
+;                   la lista de pixeles.
+;Estrategia: No aplica
 (define bitHistogram(lambda(pixeles ancho alto)
                          (define bitHistogramInt(lambda(pixeles ancho alto sumaBit)
                                                (if (null? pixeles)
@@ -204,6 +135,12 @@
                   (bitHistogramInt pixeles ancho alto 0)
                          ))
 
+;Nombre: hexHistogram
+;Descripción: Función que determina el histograma de una función del tipo hexmap.
+;Dominio: Colores(list) X PrimerColor(str).
+;Recorrido: Color(str) X Cantidad(int)
+;Tipo de recursión: Recursión natural. Es necesaria, puesto que la lista de colores debe reducirse en cada llamado recursivo.
+;Estrategia: No aplica.
 (define hexHistogram(lambda(colores primerColor)
                       (if (null? colores)
                           null
@@ -217,6 +154,13 @@
                                                                                       )) 
                                ))))
 
+
+;Nombre: rgbHistogram
+;Descripción: Función que determina el histograma de una función del tipo pixmap.
+;Dominio: Colores(list) X PrimerColor(str).
+;Recorrido: (Red(int) X Green(int) X Blue(int)) X Cantidad(int)
+;Tipo de recursión: Recursión natural. Es necesaria, puesto que la lista de colores debe reducirse en cada llamado recursivo.
+;Estrategia: Descomposición.
 (define rgbHistogram(lambda(colores primerColor)
                       (if (null? colores)
                           null
@@ -230,6 +174,13 @@
                                                                                       )) 
                                ))))
 
+
+;Nombre: histogramCase
+;Descripción: Función que retorna 0,1 o 2, según el tipo de imagen ingresada.
+;Dominio: Image.
+;Recorrido: caso(int)
+;Tipo de recursión: No aplica.
+;Estrategia: No aplica.
 (define histogramCase(lambda(image)
                        (cond ((hexmap? image) 0)
                              ((bitmap? image) 1)

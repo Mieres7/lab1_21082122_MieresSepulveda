@@ -10,50 +10,86 @@
 (provide hexadecimal?)
 (provide RGBHex)
 (provide opuesto)
-(provide invertColorRGB)
-(provide invertColorBit)
 (provide hexValueQ)
 (provide hexValueR)
 (require "TDAPixel.rkt")
+;------------------------------------------------------------------------------------------------------------------------------;
 
-;TDA - color
+
+;----------------------------------------------------------TDA - Color---------------------------------------------------------;
+
+; Implementación del TDA Color.
+; Representación:
+; - Bit: Color(int)                        -> 0 o 1
+; - RGB: Red(int) X Green(int) X Blue(int) -> ex: 255 255 255
+; - Hex: Color(str)                        -> ex: "#FFFFFF"
 
 ;---------------------------------------------------------CONSTRUCTORES--------------------------------------------------------;
 
 ;----------------------------------------------------------SELECTORES----------------------------------------------------------;
 
-;Nombre: getBit.
-;Descripción: Función extrae el 3er elemento de un pixel, bajo el contexto de la funcion bitmap? esta obtiene el bit almacenado en el pixel
-;Dominio: Imagen.
-;Recorrido: Bit 0 o 1.
+;Nombre: getBit
+;Descripción: Función que determina el Bit de un pixel dek tipo bit
+;Dominio: Pixel(list)
+;Recorrido: Bit(int)
 ;Tipo de recursión: No aplica.
+;Estrategia: No aplica.
 (define getBit(lambda(pixel)
                 (third pixel)))
 
-;caso rgb
-
+;Nombre: getRed
+;Descripción: Función que obtiene el color rojo de un pixel del tipo RGB.
+;Dominio: Pixel(pixrgb-d)
+;Recorrido: Red(int)
+;Tipo de recursión: No aplica.
+;Estrategia: No aplica.
 (define getRed(lambda(pixel)(third pixel)))
 
-(define getGreen(lambda(pixel)(
-                             fourth pixel)))
-
-(define getBlue(lambda(pixel)(
-                             fifth pixel)))
-
-;caso hexadecimal
-
-(define getHex(lambda(pixel)
-                (third pixel)))
+;Nombre: getGreen
+;Descripción: Función que obtiene el color verde de un pixel del tipo RGB.
+;Dominio: Pixel(pixrgb-d)
+;Recorrido: Green(int)
+;Tipo de recursión: No aplica.
+;Estrategia: No aplica.
+(define getGreen(lambda(pixel)(fourth pixel)))
 
 
+;Nombre: getBlue
+;Descripción: Función que obtiene el color azul de un pixel del tipo RGB.
+;Dominio: Pixel(pixrgb-d)
+;Recorrido: Blue(int)
+;Tipo de recursión: No aplica.
+;Estrategia: No aplica.
+(define getBlue(lambda(pixel)(fifth pixel)))
 
-;las 2 siguientes dejan los colores en solo una lista
+
+;Nombre: getHex
+;Descripción: Función que obtiene el color de una pixel del tipo hexadecimal.
+;Dominio: Pixel(pixhex-d)
+;Recorrido: hex(str)
+;Tipo de recursión: No aplica.
+;Estrategia: No aplica.
+(define getHex(lambda(pixel)(third pixel)))
+
+
+;Nombre: coloresHex
+;Descripción: Función que retorna una lista con los colores de todos los pixeles entregados.
+;Dominio: Pixeles(list)
+;Recorrido: Colores(list)
+;Tipo de recursión: Recursión natural, puesto que se debe recorrer la lista de pixeles completa.
+;Estrategia: No aplica.
 (define coloresHex(lambda(pixeles)
                  (if (null? pixeles)
                      null
                      (cons (getHex(first pixeles)) (coloresHex(cdr pixeles)))
                  )))
 
+;Nombre: coloresRgb
+;Descripción: Función que retorna una lista con los colores de todos los pixeles entregados.
+;Dominio: Pixeles(list)
+;Recorrido: Colores(list)
+;Tipo de recursión: Recursión natural, puesto que se debe recorrer la lista de pixeles completa.
+;Estrategia: No aplica.
 (define coloresRgb(lambda(pixeles)
                     (if (null? pixeles)
                         null
@@ -63,20 +99,33 @@
                               (coloresRgb(cdr pixeles)))
                         )))
 
+;Nombre: getColoresRGB
+;Descripción: Función que retorna la composicion completa (R G B) de un pixel del tipo RGB.
+;Dominio: Pixel(pixrgb-d)
+;Recorrido: Colores((Red(int) X Green(int) X Blue(int))
+;Tipo de recursión: No aplica.
+;Estrategia: No aplica.
 (define getColorsRGB(lambda(pixel)
                       (list(getRed pixel)(getGreen pixel)(getBlue pixel))))
 
 ;----------------------------------------------------------PERTENENCIA---------------------------------------------------------;
 
 ;Descripción: Función que determina si un el color ingresado corresponde a la notación hexadecimal.
-;Dominio: Color.
+;Dominio: Color(str).
 ;Recorrido: Booleano.
 ;Tipo de recursión: No aplica.
+;Estrategia: No aplica.
 (define hexadecimal?(lambda(color)
                       (string? color)))
 
 ;---------------------------------------------------------MODIFICADORES--------------------------------------------------------;
 
+;Nombre: RGBHex
+;Descripción: Función que transforma los colores Reg, Green y Blue (RGB) a notación hexadecimal.
+;Dominio: Red(int) X Green(int) X Blue(int)
+;Recorrido: Hex(str)
+;Tipo de recursión: No aplica.
+;Estrategia: No aplica.
 (define RGBHex(lambda (R G B)
                 (string-append "#"
                                (hexValueQ R)(hexValueR R)
@@ -85,38 +134,40 @@
                                )))
 
 
-
+;Nombre: opuesto
+;Descripción: Función que calcula el valor simetricamente opuesto de un color en notación RGB. 
+;Dominio: Red(int) | Green(int) | Blue(int)
+;Recorrido: opuestoRed(int) | opuestoGreen(int) | opuestoBlue(int)
+;Tipo de recursión: No aplica.
+;Estrategia: No aplica.
 (define opuesto(lambda(RGB)
-                 (-(- 256 RGB)1)
-                 ))
-
-(define invertColorBit(lambda(pixel)
-                        (pixbit-d (getPosX pixel)
-                                  (getPosY pixel)
-                                  (if (=(getBit pixel)1)
-                                      0
-                                      1)
-                                  (getDepth_Bit pixel))
-                        ))
-
-(define invertColorRGB(lambda(pixel)
-                        (pixrgb-d (getPosX pixel)
-                                  (getPosY pixel)
-                                  (opuesto(getRed pixel))
-                                  (opuesto(getGreen pixel))
-                                  (opuesto(getBlue pixel))
-                                  (getDepth_RGB pixel))
-                        ))
+                 (-(- 256 RGB)1)))
 
 ;--------------------------------------------------------OTRAS OPERACIONES-----------------------------------------------------;
 
 ;--------------------------------------------------------OPERACIONES TDA PO----------------------------------------------------;
+
+;Nombre: hexValueQ
+;Descripción: Función que retorna un valor hexadecimal, dependiendo de la parte entera del resultado de dividir Red, Green o Blue
+;             entre 16.
+;Dominio: Red(int) | Green(int) | Blue(int)
+;Recorrido: Hex(str)
+;Tipo de recursión: No aplica.
+;Estrategia: No aplica.
 (define hexValueQ(lambda(colorRGB)
                    (case (quotient colorRGB 16)
                      [(0)"0"][(1)"1"][(2)"2"][(3)"3"][(4)"4"][(5)"5"][(6)"6"][(7)"7"]
                      [(8)"8"][(9)"9"][(10)"A"][(11)"B"][(12)"C"][(13)"D"][(14)"E"][(15)"F"])
                    ))
 
+
+;Nombre: hexValueR
+;Descripción: Función que retorna un valor hexadecimal, dependiendo del resto del resultado de dividir Red, Green o Blue
+;             entre 16.
+;Dominio: Red(int) | Green(int) | Blue(int)
+;Recorrido: Hex(str)
+;Tipo de recursión: No aplica.
+;Estrategia: No aplica.
 (define hexValueR(lambda(colorRGB)
                    (case (remainder colorRGB 16)
                      [(0)"0"][(1)"1"][(2)"2"][(3)"3"][(4)"4"][(5)"5"][(6)"6"][(7)"7"]
