@@ -233,3 +233,39 @@
                                   (getDepth_RGB pixel))
                         ))
 
+
+(define image->string(lambda(image func)
+                       (cond ((hexmap? image))
+                             ((bitmap? image)(func(getPixeles image )(getWidth image)))
+                             ((pixmap? image))
+                             )
+                       ))
+
+
+
+(define pixbit->string(lambda(pixeles filas)
+                        (if (null? pixeles)
+                            null
+                            (cons (if (= (getPosX(getPixel pixeles))(+ filas 1))
+                                      
+
+                                      )
+                            
+                                
+                        
+                          
+                            
+
+
+(define img2 (image 2 2
+                  (pixbit-d 0 0 0 10)
+                  (pixbit-d 0 1 1 20)
+                  (pixbit-d 1 0 1 10)
+                  (pixbit-d 1 1 0 255)
+ ))
+
+
+
+
+
+

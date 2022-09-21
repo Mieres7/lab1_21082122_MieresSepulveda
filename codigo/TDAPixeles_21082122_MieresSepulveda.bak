@@ -20,8 +20,8 @@
 (provide invertirHexV)
 (provide filtro-px)
 (provide map-px)
-(require "TDAColor.rkt")
-(require "TDAPixel.rkt")
+(require "TDAColor_21082122_MieresSepulveda.rkt")
+(require "TDAPixel_21082122_MieresSepulveda.rkt")
 
 
 ;---------------------------------------------------------TDA - Pixeles--------------------------------------------------------;

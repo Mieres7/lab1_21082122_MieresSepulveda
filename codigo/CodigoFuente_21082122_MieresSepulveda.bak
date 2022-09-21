@@ -14,10 +14,10 @@
 (provide edit)
 (provide invertColorBit)
 (provide invertColorRGB)
-(require "TDAPixel.rkt")
-(require "TDAImagen.rkt")
-(require "TDAPixeles.rkt")
-(require "TDAColor.rkt")
+(require "TDAPixel_21082122_MieresSepulveda.rkt")
+(require "TDAImagen_21082122_MieresSepulveda.rkt")
+(require "TDAPixeles_21082122_MieresSepulveda.rkt")
+(require "TDAColor_21082122_MieresSepulveda.rkt")
 
 
 
@@ -38,9 +38,11 @@
 ;Tipo de recursión: No aplica.
 (define bitmap?(
                 lambda(image)
-                 (cond((= (getBit(getPixel(getPixeles image))) 1) '#t)
-                      ((= (getBit(getPixel(getPixeles image))) 0) '#t)
-                      ((= (n_componentes?(getPixel(getPixeles image))) 6) '#f)
+                 (cond ((string?(getBit(getPixel(getPixeles image)))) '#f)
+                       ((= (getBit(getPixel(getPixeles image))) 1) '#t)
+                       ((= (getBit(getPixel(getPixeles image))) 0) '#t)
+                       ((= (n_componentes?(getPixel(getPixeles image))) 6) '#f)
+                      
                       )
                  ))
 
@@ -179,10 +181,12 @@
                                                (detCommon(histogram image))
                                              
                                               ))
-                        ((pixmap? image) (list(delCommonRGB (detCommon(histogram image)) (getPixeles image))
-                                              (commonDRGB(getPixeles image)(detCommon(histogram image)))
-                                              (list(detCommon(histogram image)))
-                                              (list (getWidth image)(getHeight image))
+                        ((pixmap? image) (list (getWidth image)
+                                               (getHeight image)
+                                               (delCommonRGB (detCommon(histogram image)) (getPixeles image))
+                                               (commonDRGB(getPixeles image)(detCommon(histogram image)))
+                                               (detCommon(histogram image))
+                                              
                                               ))
                         )
                   ))
@@ -229,4 +233,3 @@
                                   (getDepth_RGB pixel))
                         ))
 
-                   

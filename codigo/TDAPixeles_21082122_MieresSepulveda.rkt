@@ -104,7 +104,7 @@
                                          (if (null? histogram)
                                              (first common)
                                              (if (>(second common)(second(first histogram)))
-                                                 (detCommonEnv (cdr histogram)common)
+                                                 (detCommonEnv (cdr histogram)  common)
                                                  (detCommonEnv (cdr histogram) (first histogram))
                                                  
                                              )
