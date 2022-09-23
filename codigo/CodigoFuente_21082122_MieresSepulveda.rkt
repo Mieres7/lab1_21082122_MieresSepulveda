@@ -14,10 +14,13 @@
 (provide edit)
 (provide invertColorBit)
 (provide invertColorRGB)
-(require "TDAPixel_21082122_MieresSepulveda.rkt")
+(provide adjustChannel)
+(provide image->string)
 (require "TDAImagen_21082122_MieresSepulveda.rkt")
 (require "TDAPixeles_21082122_MieresSepulveda.rkt")
-(require "TDAColor_21082122_MieresSepulveda.rkt")
+(require "TDApixbit-d_21082122_MieresSepulveda.rkt")
+(require "TDApixrgb-d_21082122_MieresSepulveda.rkt")
+(require "TDApixhex-d_21082122_MieresSepulveda.rkt")
 
 
 
@@ -27,9 +30,11 @@
 ;Recorrido: Imagen.
 ;Tipo de recursión: No aplica.
 (define image(lambda(ancho altura . pixeles)
-               (if (= (* ancho altura)(n_componentes? pixeles))
+               (if (integer? (caar pixeles))
                    (list ancho altura pixeles)
-                   "Favor ingresar cantidad correcta de pixeles, o en su defecto la dimensión correcta de la imagen.")))
+                   (list ancho altura (car pixeles)))
+               ))
+                   
 
 
 ;Descripción: Función que determina si una imagen corresponde a un conjunto de pixeles del tipo pixbit-d.
@@ -87,10 +92,10 @@
 ;Recorrido: Image
 ;Tipo de recursión: No aplica.
 ;Estrategia: No aplica
-(define flipH (lambda (image)
-                (cond ((bitmap? image) (list (getWidth image)(getHeight image)(invertirBitH(getWidth image)(getPixeles image))))
-                      ((pixmap? image) (list (getWidth image)(getHeight image)(invertirRGBH(getWidth image)(getPixeles image))))
-                      ((hexmap? image) (list (getWidth image)(getHeight image)(invertirHexH(getWidth image)(getPixeles image))))
+(define flipH (lambda (imagen)
+                (cond ((bitmap? imagen) (image (getWidth imagen)(getHeight imagen)(invertirBitH(getWidth imagen)(getPixeles imagen))))
+                      ((pixmap? imagen) (image (getWidth imagen)(getHeight imagen)(invertirRGBH(getWidth imagen)(getPixeles imagen))))
+                      ((hexmap? imagen) (image (getWidth imagen)(getHeight imagen)(invertirHexH(getWidth imagen)(getPixeles imagen))))
 
                  )
                )
@@ -102,10 +107,10 @@
 ;Recorrido: Image
 ;Tipo de recursión: No aplica.
 ;Estrategia: No aplica
-(define flipV (lambda (image)
-                (cond ((bitmap? image) (list (getWidth image)(getHeight image)(invertirBitV(getHeight image)(getPixeles image))))
-                      ((pixmap? image) (list (getWidth image)(getHeight image)(invertirRGBV(getHeight image)(getPixeles image))))
-                      ((hexmap? image) (list (getWidth image)(getHeight image)(invertirHexV(getHeight image)(getPixeles image))))
+(define flipV (lambda (imagen)
+                (cond ((bitmap? imagen) (image (getWidth imagen)(getHeight imagen)(invertirBitV(getHeight imagen)(getPixeles imagen))))
+                      ((pixmap? imagen) (image (getWidth imagen)(getHeight imagen)(invertirRGBV(getHeight imagen)(getPixeles imagen))))
+                      ((hexmap? imagen) (image (getWidth imagen)(getHeight imagen)(invertirHexV(getHeight imagen)(getPixeles imagen))))
 
                  )
                )
@@ -117,8 +122,8 @@
 ;Recorrido: iIamge
 ;Tipo de recursión: No aplica.
 ;Estrategia: No aplica.
-(define crop(lambda(image x1 y1 x2 y2)
-              (list (nuevaDim x1 x2)(nuevaDim y1 y2)(filtroCrop image (getPixel(getPixeles image)) x1 y1 x2 y2)
+(define crop(lambda(imagen x1 y1 x2 y2)
+              (image (nuevaDim x1 x2)(nuevaDim y1 y2)(filtroCrop imagen (getPixel(getPixeles imagen)) x1 y1 x2 y2)
                      )
               ))
 
@@ -128,8 +133,8 @@
 ;Recorrido: Image
 ;Tipo de recursión: No aplica.
 ;Estrategia: No aplica.
-(define imgRGB->imgHex(lambda (image)
-                        (list (getWidth image)(getHeight image)(convert(getPixeles image)))
+(define imgRGB->imgHex(lambda (imagen)
+                        (image (getWidth imagen)(getHeight imagen)(convert(getPixeles imagen)))
                         ))
 
 ;Nombre: histogram
@@ -138,11 +143,11 @@
 ;Recorrido: histogram.
 ;Tipo de recursión: No aplica.
 ;Estrategia: No aplica.
-(define histogram(lambda(image)
-                   (case (histogramCase image)
-                     [(0)(hexHistogram (coloresHex(getPixeles image))(car(coloresHex(getPixeles image))))]
-                     [(1)(bitHistogram (getPixeles image)(getWidth image)(getHeight image))]
-                     [(2)(rgbHistogram (coloresRgb(getPixeles image))(car(coloresRgb(getPixeles image))))]
+(define histogram(lambda(imagen)
+                   (case (histogramCase imagen)
+                     [(0)(hexHistogram (coloresHex(getPixeles imagen))(car(coloresHex(getPixeles imagen))))]
+                     [(1)(bitHistogram (getPixeles imagen)(getWidth imagen)(getHeight imagen))]
+                     [(2)(rgbHistogram (coloresRgb(getPixeles imagen))(car(coloresRgb(getPixeles imagen))))]
                     )
                    ))
 
@@ -153,10 +158,10 @@
 ;Recorrido: Image.
 ;Tipo de recursión: No aplica.
 ;Estrategia: No aplica.
-(define rotate90(lambda(image)
-                  (cond ((hexmap? image)(list (getHeight image)(getWidth image)(rotateHex(getWidth image)(getPixeles image))))
-                        ((bitmap? image)(list (getHeight image)(getWidth image)(rotateBit(getWidth image)(getPixeles image))))
-                        ((pixmap? image)(list (getHeight image)(getWidth image)(rotateRGB(getWidth image)(getPixeles image))))
+(define rotate90(lambda(imagen)
+                  (cond ((hexmap? imagen)(image (getHeight imagen)(getWidth imagen)(rotateHex(getWidth imagen)(getPixeles imagen))))
+                        ((bitmap? imagen)(image (getHeight imagen)(getWidth imagen)(rotateBit(getWidth imagen)(getPixeles imagen))))
+                        ((pixmap? imagen)(image (getHeight imagen)(getWidth imagen)(rotateRGB(getWidth imagen)(getPixeles imagen))))
                          )
                   ))
 
@@ -166,26 +171,26 @@
 ;Recorrido: Image Compressed
 ;Tipo de recursión: No aplica.
 ;Estrategia: No aplica.
-(define compress(lambda(image)
-                  (cond ((hexmap? image) (list(getWidth image)
-                                              (getHeight image)
-                                              (delCommonHex (detCommon(histogram image)) (getPixeles image))
-                                              (commonDHex (getPixeles image)(detCommon(histogram image)))
-                                              (detCommon(histogram image))
+(define compress(lambda(imagen)
+                  (cond ((hexmap? imagen) (list(getWidth imagen)
+                                              (getHeight imagen)
+                                              (delCommonHex (detCommon(histogram imagen)) (getPixeles imagen))
+                                              (commonDHex (getPixeles imagen)(detCommon(histogram imagen)))
+                                              (list(detCommon(histogram imagen)))
                                               
                                               ))
-                        ((bitmap? image) (list (getWidth image)
-                                               (getHeight image)
-                                               (delCommonBit (detCommon(histogram image)) (getPixeles image))
-                                               (commonDBit(getPixeles image)(detCommon(histogram image)))
-                                               (detCommon(histogram image))
+                        ((bitmap? imagen) (list (getWidth imagen)
+                                               (getHeight imagen)
+                                               (delCommonBit (detCommon(histogram imagen)) (getPixeles imagen))
+                                               (commonDBit(getPixeles imagen)(detCommon(histogram imagen)))
+                                               (list(detCommon(histogram imagen)))
                                              
                                               ))
-                        ((pixmap? image) (list (getWidth image)
-                                               (getHeight image)
-                                               (delCommonRGB (detCommon(histogram image)) (getPixeles image))
-                                               (commonDRGB(getPixeles image)(detCommon(histogram image)))
-                                               (detCommon(histogram image))
+                        ((pixmap? imagen) (list (getWidth imagen)
+                                               (getHeight imagen)
+                                               (delCommonRGB (detCommon(histogram imagen)) (getPixeles imagen))
+                                               (commonDRGB(getPixeles imagen)(detCommon(histogram imagen)))
+                                               (detCommon(histogram imagen))
                                               
                                               ))
                         )
@@ -198,8 +203,8 @@
 ;Recorrido: Image
 ;Tipo de recursión: No aplica.
 ;Estrategia: No aplica.
-(define edit(lambda (filtro image)
-              (list (getWidth image)(getHeight image)(map-px filtro (getPixeles image)))
+(define edit(lambda (filtro imagen)
+              (image (getWidth imagen)(getHeight imagen)(map-px filtro (getPixeles imagen)))
   ))
 
 
@@ -227,45 +232,50 @@
 (define invertColorRGB(lambda(pixel)
                         (pixrgb-d (getPosX pixel)
                                   (getPosY pixel)
-                                  (opuesto(getRed pixel))
-                                  (opuesto(getGreen pixel))
-                                  (opuesto(getBlue pixel))
+                                  (opuesto(getR pixel))
+                                  (opuesto(getG pixel))
+                                  (opuesto(getB pixel))
                                   (getDepth_RGB pixel))
                         ))
 
 
+;Nombre: adjustChannel
+;Descripción: Función que permite modificar cualquier canal de una imagen con pixeles pixrgb-d.
+;Dominio: f1 X f2 X f3 X Pixel(pixrgb-d)
+;Recorrido: Image
+;Recursión: No aplica.
+;Estrategia: Currificación parcial.
+(define adjustChannel(lambda(selector modificador operador)(lambda(pixel)(modificador pixel(operador(selector pixel))))))                     
+                                
+
+                            
+
 (define image->string(lambda(image func)
-                       (cond ((hexmap? image))
-                             ((bitmap? image)(func(getPixeles image )(getWidth image)))
-                             ((pixmap? image))
+                       (cond ((hexmap? image)(func(getPixeles image)))
+                             ((bitmap? image)(func(getPixeles image)))
+                             ((pixmap? image)(func (imgRGB->imgHex image)))
                              )
                        ))
-
-
-
-(define pixbit->string(lambda(pixeles filas)
-                        (if (null? pixeles)
-                            null
-                            (cons (if (= (getPosX(getPixel pixeles))(+ filas 1))
-                                      
-
-                                      )
-                            
-                                
                         
-                          
-                            
+                                                          
 
+                    
+                   
+                             
 
 (define img2 (image 2 2
                   (pixbit-d 0 0 0 10)
                   (pixbit-d 0 1 1 20)
-                  (pixbit-d 1 0 1 10)
-                  (pixbit-d 1 1 0 255)
+                  (pixbit-d 1 0 1 30)
+                  (pixbit-d 1 1 0 40)
  ))
 
 
+(define img1 (image 2 2
+                  (pixrgb-d 0 0 255 0 0 10)
+                  (pixrgb-d 0 1 0 255 0 20)
+                  (pixrgb-d 1 0 0 0 255 10)
+                  (pixrgb-d 1 1 255 255 255  1)
+ ))
 
-
-
-
+(define img3 (imgRGB->imgHex img1))

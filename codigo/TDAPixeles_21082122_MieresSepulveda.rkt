@@ -20,8 +20,9 @@
 (provide invertirHexV)
 (provide filtro-px)
 (provide map-px)
-(require "TDAColor_21082122_MieresSepulveda.rkt")
-(require "TDAPixel_21082122_MieresSepulveda.rkt")
+(require "TDApixbit-d_21082122_MieresSepulveda.rkt")
+(require "TDApixrgb-d_21082122_MieresSepulveda.rkt")
+(require "TDApixhex-d_21082122_MieresSepulveda.rkt")
 
 
 ;---------------------------------------------------------TDA - Pixeles--------------------------------------------------------;
@@ -129,7 +130,7 @@
                      null
                      (cons (pixhex-d (getPosX(getPixel pixeles))
                                      (getPosY(getPixel pixeles))
-                                     (RGBHex (getRed(getPixel pixeles))(getGreen(getPixel pixeles))(getBlue(getPixel pixeles)))
+                                     (RGBHex (getR(getPixel pixeles))(getG(getPixel pixeles))(getB(getPixel pixeles)))
                                      (getDepth_RGB(getPixel pixeles)))
                            (convert(cdr pixeles))))))
 
@@ -179,9 +180,9 @@
                        null
                        (cons (pixrgb-d (getPosY(getPixel pixeles))
                                        (- (- filas 1)(getPosX(getPixel pixeles)))
-                                       (getRed(getPixel pixeles))
-                                       (getGreen(getPixel pixeles))
-                                       (getBlue(getPixel pixeles))
+                                       (getR(getPixel pixeles))
+                                       (getG(getPixel pixeles))
+                                       (getB(getPixel pixeles))
                                        (getDepth_RGB(getPixel pixeles)))
                              (rotateRGB filas (cdr pixeles)))
                        )))
@@ -266,9 +267,9 @@
                       null
                       (cons (pixrgb-d (getPosX(getPixel pixeles))
                                       (newPosY ancho(getPixel pixeles))
-                                      (getRed(getPixel pixeles))
-                                      (getGreen(getPixel pixeles))
-                                      (getBlue(getPixel pixeles))
+                                      (getR(getPixel pixeles))
+                                      (getG(getPixel pixeles))
+                                      (getB(getPixel pixeles))
                                       (getDepth_RGB(getPixel pixeles)))
                             (invertirRGBH ancho (cdr pixeles))
                                   ))))
@@ -319,9 +320,9 @@
                       null
                       (cons (pixrgb-d (newPosX altura (getPixel pixeles))
                                       (getPosY(getPixel pixeles))
-                                      (getRed(getPixel pixeles))
-                                      (getGreen(getPixel pixeles))
-                                      (getBlue(getPixel pixeles))
+                                      (getR(getPixel pixeles))
+                                      (getG(getPixel pixeles))
+                                      (getB(getPixel pixeles))
                                       (getDepth_RGB(getPixel pixeles)))
                             (invertirRGBV altura (cdr pixeles))
                                   ))))
@@ -342,6 +343,49 @@
                                       (getDepth_Hex(getPixel pixeles)))
                             (invertirHexV altura (cdr pixeles))
                                   ))))
+
+
+;Nombre: pixbit->string
+;Descripción: Función que transforma una lista de pixeles del tipo pixbit a un string
+;Dominio: Pixeles(list)
+;Recorrido: string
+;Tipo de recursión: Recursión de Cola, de esta forma es posible almacenar el string resultante como un parámetro de la función.
+;Estrategia: No aplica.
+(define pixbit->string(lambda(pixeles)
+                        (define pixbit->stringInt(lambda(pixeles string)
+                                                  (if (null? pixeles)
+                                                      string
+                                                      (if (=(getPosY(getPixel pixeles))0)
+                                                          (pixbit->stringInt(cdr pixeles)(string-append string "\n" (numString(getPixel pixeles))))
+                                                          (pixbit->stringInt(cdr pixeles)(string-append string (numString(getPixel pixeles)))))
+                                                      )))
+                        (pixbit->stringInt pixeles "")))
+
+;Nombre: pixhex->string
+;Descripción: Función que transforma una lista de pixeles del tipo pixhex a un string
+;Dominio: Pixeles(list)
+;Recorrido: string
+;Tipo de recursión: Recursión de Cola, de esta forma es posible almacenar el string resultante como un parámetro de la función.
+;Estrategia: No aplica.
+(define pixhex->string(lambda(pixeles)
+                        (define pixhex->stringInt(lambda(pixeles string)
+                                                  (if (null? pixeles)
+                                                      string
+                                                      (if (=(getPosY(getPixel pixeles))0)
+                                                          (pixhex->stringInt(cdr pixeles)(string-append string "\n" (getHex(getPixel pixeles))))
+                                                          (pixhex->stringInt(cdr pixeles)(string-append string (getHex(getPixel pixeles)))))
+                                                      )))
+                        (pixhex->stringInt pixeles "")))
+
+
+;Nombre: pixrgb->string
+;Descripción: Función que transforma una lista de pixeles del tipo pixrgb a un string
+;Dominio: Pixeles(list)
+;Recorrido: string
+;Tipo de recursión: No aplica.
+;Estrategia: No aplica.
+(define pixrgb->string(lambda(image)
+                        (pixhex->string (getPixeles image))))
 
 ;-------------------------------------------------------OTRAS OPERACIONES------------------------------------------------------;
 

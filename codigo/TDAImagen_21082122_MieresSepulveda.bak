@@ -7,10 +7,9 @@
 (provide rgbHistogram)
 (provide hexHistogram)
 (provide histogramCase)
+(require "TDAPixel_21082122_MieresSepulveda.rkt")
 (require "TDAPixeles_21082122_MieresSepulveda.rkt")
-(require "TDApixbit-d_21082122_MieresSepulveda.rkt")
-(require "TDApixrgb-d_21082122_MieresSepulveda.rkt")
-(require "TDApixhex-d_21082122_MieresSepulveda.rkt")
+(require "TDAColor_21082122_MieresSepulveda.rkt")
 
 ;------------------------------------------------------------------------------------------------------------------------------;
 
@@ -19,7 +18,7 @@
 ;----------------------------------------------------------TDA - Image---------------------------------------------------------;
 
 ; Implementación del TDA Image
-; Representación:
+; Representaición:
 ; - Image: Ancho(int+) X Alto(int+) X Pixeles(list)
 ; - Image Compressed: Ancho(int) X Alto(int) X Depths(list X int) X Color(int) | Color(str) | Color(Red(int) | Green(int) | Blue(int)
 ; - Histogram: (List(Color(int) | Color(str) | Color(Red(int) | Green(int) | Blue(int)) X Cantidad(int)))
