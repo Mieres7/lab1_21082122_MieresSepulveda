@@ -20,6 +20,9 @@
 (provide invertirHexV)
 (provide filtro-px)
 (provide map-px)
+(provide pixrgb->string)
+(provide pixhex->string)
+(provide pixbit->string)
 (require "TDApixbit-d_21082122_MieresSepulveda.rkt")
 (require "TDApixrgb-d_21082122_MieresSepulveda.rkt")
 (require "TDApixhex-d_21082122_MieresSepulveda.rkt")
@@ -384,8 +387,8 @@
 ;Recorrido: string
 ;Tipo de recursión: No aplica.
 ;Estrategia: No aplica.
-(define pixrgb->string(lambda(image)
-                        (pixhex->string (getPixeles image))))
+(define pixrgb->string(lambda(pixeles)
+                        (pixhex->string pixeles)))
 
 ;-------------------------------------------------------OTRAS OPERACIONES------------------------------------------------------;
 

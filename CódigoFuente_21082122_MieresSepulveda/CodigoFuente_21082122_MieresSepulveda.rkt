@@ -24,6 +24,7 @@
 
 
 
+
 ;Nombre: image.
 ;Descripción: Función constructura de imagenes a partir de una dimension dada (ancho y alto) y un conjunto de pixeles del tipo RGB-d, bit-d o hex-d.
 ;Dominio: Ancho, altura, conjunto de pixeles (pixrgb-d, pixbit-d, píxhex-d)
@@ -79,11 +80,13 @@
 ;Dominio: Imagen.
 ;Recorrido: Boleano.
 ;Tipo de recursión: No aplica.
-(define compressed?(
-                     lambda(image)
-                      (if (= (* (getWidth image) (getHeight image))(n_componentes?(getPixeles image)))
-                          #f
-                          #t)))
+(define compressed?(lambda(image)
+                      (if (= (n_componentes? image)5)
+                          #t
+                          #f)
+                     ))
+                          
+                          
 
 
 ;Nombre: flipH
@@ -172,7 +175,14 @@
 ;Tipo de recursión: No aplica.
 ;Estrategia: No aplica.
 (define compress(lambda(imagen)
-                  (cond ((hexmap? imagen) (list(getWidth imagen)
+                  (cond ((pixmap? imagen) (list (getWidth imagen)
+                                                (getHeight imagen)
+                                                (delCommonRGB (detCommon(histogram imagen)) (getPixeles imagen))
+                                                (commonDRGB(getPixeles imagen)(detCommon(histogram imagen)))
+                                                (detCommon(histogram imagen))
+                                              
+                                              ))
+                        ((hexmap? imagen) (list(getWidth imagen)
                                               (getHeight imagen)
                                               (delCommonHex (detCommon(histogram imagen)) (getPixeles imagen))
                                               (commonDHex (getPixeles imagen)(detCommon(histogram imagen)))
@@ -180,18 +190,11 @@
                                               
                                               ))
                         ((bitmap? imagen) (list (getWidth imagen)
-                                               (getHeight imagen)
-                                               (delCommonBit (detCommon(histogram imagen)) (getPixeles imagen))
-                                               (commonDBit(getPixeles imagen)(detCommon(histogram imagen)))
-                                               (list(detCommon(histogram imagen)))
+                                                (getHeight imagen)
+                                                (delCommonBit (detCommon(histogram imagen)) (getPixeles imagen))
+                                                (commonDBit(getPixeles imagen)(detCommon(histogram imagen)))
+                                                (list(detCommon(histogram imagen)))
                                              
-                                              ))
-                        ((pixmap? imagen) (list (getWidth imagen)
-                                               (getHeight imagen)
-                                               (delCommonRGB (detCommon(histogram imagen)) (getPixeles imagen))
-                                               (commonDRGB(getPixeles imagen)(detCommon(histogram imagen)))
-                                               (detCommon(histogram imagen))
-                                              
                                               ))
                         )
                   ))
@@ -249,33 +252,25 @@
                                 
 
                             
-
+;Nombre: image->string
+;Descripción: Función que transforma una imagen de cualquier tipo a un string
+;Dominio: Image X func
+;Recorrido: String
+;Recursión: No aplica.
+;Estrategia: No aplica.
 (define image->string(lambda(image func)
-                       (cond ((hexmap? image)(func(getPixeles image)))
-                             ((bitmap? image)(func(getPixeles image)))
-                             ((pixmap? image)(func (imgRGB->imgHex image)))
+                       (cond ((pixmap? image)(func (getPixeles(imgRGB->imgHex image))))
+                             ((hexmap? image)(func (getPixeles image)))
+                             ((bitmap? image)(func (getPixeles image)))
                              )
                        ))
                         
-                                                          
-
-                    
-                   
-                             
-
-(define img2 (image 2 2
-                  (pixbit-d 0 0 0 10)
-                  (pixbit-d 0 1 1 20)
-                  (pixbit-d 1 0 1 30)
-                  (pixbit-d 1 1 0 40)
- ))
-
-
 (define img1 (image 2 2
                   (pixrgb-d 0 0 255 0 0 10)
                   (pixrgb-d 0 1 0 255 0 20)
                   (pixrgb-d 1 0 0 0 255 10)
                   (pixrgb-d 1 1 255 255 255  1)
  ))
+                    
 
-(define img3 (imgRGB->imgHex img1))
+                             

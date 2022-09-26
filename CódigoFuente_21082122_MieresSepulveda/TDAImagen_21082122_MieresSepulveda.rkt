@@ -3,10 +3,10 @@
 (provide getHeight)
 (provide nuevaDim)
 (provide filtroCrop)
+(provide histogramCase)
 (provide bitHistogram)
 (provide rgbHistogram)
 (provide hexHistogram)
-(provide histogramCase)
 (require "TDAPixeles_21082122_MieresSepulveda.rkt")
 (require "TDApixbit-d_21082122_MieresSepulveda.rkt")
 (require "TDApixrgb-d_21082122_MieresSepulveda.rkt")
@@ -117,7 +117,6 @@
 
 ;--------------------------------------------------------OTRAS OPERACIONES-----------------------------------------------------;
 
-
 ;Nombre: bitHistogram
 ;Descripción: Función que determina el histograma de una función del tipo bitmap.
 ;Dominio: Pixeles(list) X Ancho(int) X Alto(int)
@@ -188,6 +187,8 @@
                              ((pixmap? image) 2)
                              )
                        ))
+
+
 
 
 

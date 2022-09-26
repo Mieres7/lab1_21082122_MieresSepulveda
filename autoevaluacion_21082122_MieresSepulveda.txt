@@ -19,7 +19,7 @@ rut: 21.082.122-8
 13. edit		  1
 14. invertColorBit	  1
 15. invertColorRGB  	  1
-16. adjustChannel	  0
-17. image->string	  0
+16. adjustChannel	  1
+17. image->string	  1
 18. depthLayers 	  0
 19. descompress		  0
