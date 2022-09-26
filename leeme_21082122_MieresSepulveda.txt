@@ -1,9 +1,8 @@
 Archivo readme para indicaciones especialas y/o aclaraciones.
 
 1. Todas las funciones especificadas en el archivo CodigoFuente_21082122_MieresSepulveda.rkt, forman parte del TDAImangen, dados los requerimientos no funcionales estas 
-   fueron extraidas.
-
-2. Se definieron funciones generales que pueden ser aplicadas a todos los tipos de pixeles, sin embargo estas se encuentran definidas en TDApixbit-d_21082122_MieresSepulveda,
-   puesto que Dr. Racket lanzará un error si se proveen las mismas funciones. Además 2 archivos no pueden llamarse entre sí.
+   fueron extraidas. Es por esto que las funcionces hexmap? , bitmap? y pixmap? se encuentran duplicadas, de no ser así los archivos deberían llamarse mutuamente lo 
+   cual no es permitido.
 
 3. Para evitar errores, puesto que la funciones no están definidas, en el Script de Pruebas no se especificaron llamados a depthLayer o decompress.
+

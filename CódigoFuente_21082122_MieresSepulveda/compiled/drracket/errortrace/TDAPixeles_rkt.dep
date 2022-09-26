@@ -1,1 +1,0 @@
-("8.6" ta6nt ("e71e2a0512f0358e441845450a3b98e82227455e" . "f760aaf1f899088634649279524043cef9e1c31b") #"C:\\Users\\Vicente\\Desktop\\lab1_21082122_Mieres\\codigo\\TDAColor.rkt" #"C:\\Users\\Vicente\\Desktop\\lab1_21082122_Mieres\\codigo\\TDAPixel.rkt" (collects #"errortrace" #"errortrace-key.rkt") (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt"))

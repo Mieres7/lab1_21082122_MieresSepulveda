@@ -5,6 +5,7 @@
 (require "TDAImagen_21082122_MieresSepulveda.rkt")
 (require "TDAPixeles_21082122_MieresSepulveda.rkt")
 (require "CodigoFuente_21082122_MieresSepulveda.rkt")
+(require "TDAPixel_21082122_MieresSepulveda.rkt")
 
 
 ;---------------------------------------------------------Archivo de Pruebas--------------------------------------------------------;

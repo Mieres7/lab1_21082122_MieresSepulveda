@@ -20,7 +20,7 @@
 (provide opuesto)
 (provide hexValueQ)
 (provide hexValueR)
-(require "TDApixbit-d_21082122_MieresSepulveda.rkt")
+(require "TDAPixel_21082122_MieresSepulveda.rkt")
 
 
 

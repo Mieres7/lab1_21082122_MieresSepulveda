@@ -26,6 +26,7 @@
 (require "TDApixbit-d_21082122_MieresSepulveda.rkt")
 (require "TDApixrgb-d_21082122_MieresSepulveda.rkt")
 (require "TDApixhex-d_21082122_MieresSepulveda.rkt")
+(require "TDAPixel_21082122_MieresSepulveda.rkt")
 
 
 ;---------------------------------------------------------TDA - Pixeles--------------------------------------------------------;
