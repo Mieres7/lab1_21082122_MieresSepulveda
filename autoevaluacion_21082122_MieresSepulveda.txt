@@ -3,6 +3,7 @@ Autoevaluación laboratorio n°1 - Paradigamas de programación
 Nombre: Vicente Mieres.
 rut: 21.082.122-8
 
+Requerimientos funcionales
     Función 	     Puntuación
 1.  image		  1
 2.  bitmap?		  1
@@ -23,3 +24,17 @@ rut: 21.082.122-8
 17. image->string	  1
 18. depthLayers 	  0
 19. descompress		  0
+
+Requerimientos no funcionales
+20. TDAs		  1
+21. autoevaluación        1
+22. lenguaje		  1
+23. version		  1
+24. standar		  1
+25. documentación	  1
+26. Dom->Rec		  1
+27. Organización	  1
+28. Historial		  1
+29. Script de Pruebas	  1
+30. Prerequisitos	  1
+31. No variables
